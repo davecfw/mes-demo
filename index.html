@@ -1,0 +1,1204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.6">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="zh-CN"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1">&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1">&lt;meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"&gt;</p>
+<p class="p1">&lt;title&gt;轻量MES系统&lt;/title&gt;</p>
+<p class="p1">&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1">&lt;link href="https://cdn.jsdelivr.net/fontsource/css/noto-sans-sc@latest/chinese-simplified/index.css" rel="stylesheet"&gt;</p>
+<p class="p1">&lt;style&gt;</p>
+<p class="p1">* { font-family: 'Noto Sans SC', sans-serif; -webkit-tap-highlight-color: transparent; }</p>
+<p class="p1">body { background: #f0f2f5; overscroll-behavior: none; }</p>
+<p class="p1">.tab-content { display: none; }</p>
+<p class="p1">.tab-content.active { display: block; }</p>
+<p class="p1">.bottom-nav-item.active { color: #2563eb; }</p>
+<p class="p1">.bottom-nav-item.active svg { stroke: #2563eb; }</p>
+<p class="p1">.card-enter { animation: cardIn 0.3s ease-out; }</p>
+<p class="p1">@keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }</p>
+<p class="p1">@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }</p>
+<p class="p1">.pulse-dot { animation: pulse-dot 1.5s infinite; }</p>
+<p class="p1">.modal-overlay { transition: opacity 0.2s; }</p>
+<p class="p1">.modal-content { transition: transform 0.2s; }</p>
+<p class="p1">.status-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 9999px; font-weight: 500; }</p>
+<p class="p1">.gate-blocked { border-left: 4px solid #ef4444; }</p>
+<p class="p1">.gate-pass { border-left: 4px solid #22c55e; }</p>
+<p class="p1">input, select, textarea { font-size: 16px !important; }</p>
+<p class="p1">.scrollbar-hide::-webkit-scrollbar { display: none; }</p>
+<p class="p1">.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }</p>
+<p class="p1">&lt;/style&gt;</p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">tailwind.config = {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>theme: {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>extend: {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>colors: {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>primary: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8' },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>success: { 50:'#f0fdf4',100:'#dcfce7',500:'#22c55e',600:'#16a34a' },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>warning: { 50:'#fffbeb',100:'#fef3c7',500:'#f59e0b',600:'#d97706' },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>danger: { 50:'#fef2f2',100:'#fee2e2',500:'#ef4444',600:'#dc2626' }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1">}</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="max-w-md mx-auto bg-gray-50 min-h-screen pb-20 relative"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- Status Bar Spacer --&gt;</p>
+<p class="p1">&lt;div class="h-11 bg-primary-600"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- Header --&gt;</p>
+<p class="p1">&lt;header class="bg-primary-600 text-white px-4 pb-4 pt-1 sticky top-0 z-40 shadow-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="flex items-center justify-between"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;h1 class="text-lg font-bold tracking-wide"&gt;轻量 MES&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;p class="text-xs text-primary-200"&gt;智能制造执行系统&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="flex items-center gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button onclick="showNotifications()" class="relative p-2 rounded-full hover:bg-primary-500 transition"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;span id="notifBadge" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold"&gt;3&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="w-8 h-8 bg-primary-400 rounded-full flex items-center justify-center text-sm font-bold"&gt;张&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- ==================== TAB: 首页 Dashboard ==================== --&gt;</p>
+<p class="p1">&lt;div id="tab-dashboard" class="tab-content active px-4 pt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Summary Cards --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="grid grid-cols-3 gap-3 mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="bg-white rounded-xl p-3 shadow-sm card-enter text-center border-l-4 border-primary-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="text-2xl font-bold text-primary-600" id="dash-producing"&gt;3&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="text-xs text-gray-500 mt-1"&gt;生产中&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="bg-white rounded-xl p-3 shadow-sm card-enter text-center border-l-4 border-warning-500" style="animation-delay:0.1s"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="text-2xl font-bold text-warning-600" id="dash-qc"&gt;2&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="text-xs text-gray-500 mt-1"&gt;待质检&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="bg-white rounded-xl p-3 shadow-sm card-enter text-center border-l-4 border-success-500" style="animation-delay:0.2s"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="text-2xl font-bold text-success-600" id="dash-ready"&gt;5&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="text-xs text-gray-500 mt-1"&gt;可出货&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Delay Alerts --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h3 class="text-sm font-bold text-gray-700 mb-2 flex items-center gap-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"&gt;&lt;path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>延迟预警</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="alertList" class="space-y-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2 gate-blocked"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;span class="pulse-dot inline-block w-2 h-2 bg-red-500 rounded-full mt-1.5 flex-shrink-0"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;p class="text-sm font-medium text-red-700"&gt;工单 WO-20240115-002&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;p class="text-xs text-red-500"&gt;质检阶段已停留 28 小时，超出24小时阈值&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-start gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;span class="pulse-dot inline-block w-2 h-2 bg-orange-500 rounded-full mt-1.5 flex-shrink-0"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;p class="text-sm font-medium text-orange-700"&gt;进料批号 RM-20240116-A3&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;p class="text-xs text-orange-500"&gt;黏性测试数值偏低，待复检确认&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Recent Activity --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h3 class="text-sm font-bold text-gray-700 mb-2"&gt;最近动态&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="bg-white rounded-xl shadow-sm overflow-hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="divide-y divide-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="p-3 flex items-center gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="flex-1 min-w-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-sm text-gray-800 truncate"&gt;工单 WO-001 已完成质检，合格入库&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-xs text-gray-400"&gt;10 分钟前&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="p-3 flex items-center gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="flex-1 min-w-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-sm text-gray-800 truncate"&gt;原材料 RM-0116-A3 已扫码入库&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-xs text-gray-400"&gt;35 分钟前&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="p-3 flex items-center gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="flex-1 min-w-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-sm text-gray-800 truncate"&gt;新工单 WO-003 已创建，开始生产&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-xs text-gray-400"&gt;1 小时前&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="p-3 flex items-center gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="flex-1 min-w-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-sm text-gray-800 truncate"&gt;进料 RM-0116-A3 黏性值偏低，需复检&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-xs text-gray-400"&gt;2 小时前&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Quick Actions --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h3 class="text-sm font-bold text-gray-700 mb-2"&gt;快捷操作&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="grid grid-cols-4 gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button onclick="switchTab('iqc');setTimeout(()=&gt;openIQCForm(),100)" class="bg-white rounded-xl p-3 shadow-sm flex flex-col items-center gap-1 active:bg-gray-100 transition"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;span class="text-xs text-gray-600"&gt;进料登记&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button onclick="switchTab('production');setTimeout(()=&gt;openWOForm(),100)" class="bg-white rounded-xl p-3 shadow-sm flex flex-col items-center gap-1 active:bg-gray-100 transition"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;span class="text-xs text-gray-600"&gt;新建工单&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button onclick="switchTab('qc');setTimeout(()=&gt;openQCForm(),100)" class="bg-white rounded-xl p-3 shadow-sm flex flex-col items-center gap-1 active:bg-gray-100 transition"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;span class="text-xs text-gray-600"&gt;质检录入&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button onclick="switchTab('shipping');setTimeout(()=&gt;openShipForm(),100)" class="bg-white rounded-xl p-3 shadow-sm flex flex-col items-center gap-1 active:bg-gray-100 transition"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;span class="text-xs text-gray-600"&gt;出货登记&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- SOP Flow Diagram --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h3 class="text-sm font-bold text-gray-700 mb-2"&gt;SOP 流程概览&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="bg-white rounded-xl p-4 shadow-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="flex items-center justify-between text-xs"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex flex-col items-center gap-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold"&gt;进&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="text-gray-600"&gt;进料&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"&gt;&lt;path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex flex-col items-center gap-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold"&gt;加&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="text-gray-600"&gt;加工&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"&gt;&lt;path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex flex-col items-center gap-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold"&gt;检&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="text-gray-600"&gt;质检&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"&gt;&lt;path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex flex-col items-center gap-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold"&gt;出&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="text-gray-600"&gt;出货&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="mt-3 pt-3 border-t border-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex items-center gap-2 text-xs text-gray-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;svg class="w-3.5 h-3.5 text-red-400" fill="currentColor" viewBox="0 0 20 20"&gt;&lt;path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span&gt;每个节点均设有SOP逻辑闸，不合规则自动拦截&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- ==================== TAB: 进料管理 IQC ==================== --&gt;</p>
+<p class="p1">&lt;div id="tab-iqc" class="tab-content px-4 pt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="flex items-center justify-between mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h2 class="text-lg font-bold text-gray-800"&gt;进料管理 &lt;span class="text-sm font-normal text-gray-400"&gt;(IQC)&lt;/span&gt;&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button onclick="openIQCForm()" class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium active:bg-primary-700 transition flex items-center gap-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>新增进料</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Filter --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="flex gap-2 mb-3 overflow-x-auto scrollbar-hide"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button class="iqc-filter-btn bg-primary-600 text-white px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap" data-filter="all" onclick="filterIQC('all',this)"&gt;全部&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button class="iqc-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border" data-filter="stored" onclick="filterIQC('stored',this)"&gt;已入库&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button class="iqc-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border" data-filter="pending" onclick="filterIQC('pending',this)"&gt;待检测&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button class="iqc-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border" data-filter="rejected" onclick="filterIQC('rejected',this)"&gt;不合格&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="iqcList" class="space-y-3"&gt;&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- ==================== TAB: 加工管理 Production ==================== --&gt;</p>
+<p class="p1">&lt;div id="tab-production" class="tab-content px-4 pt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="flex items-center justify-between mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h2 class="text-lg font-bold text-gray-800"&gt;生产工单&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button onclick="openWOForm()" class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium active:bg-primary-700 transition flex items-center gap-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>新建工单</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Kanban Status --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="grid grid-cols-3 gap-2 mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="bg-blue-50 rounded-lg p-2 text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="text-lg font-bold text-blue-600" id="wo-producing"&gt;3&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="text-xs text-blue-500"&gt;生产中&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="bg-yellow-50 rounded-lg p-2 text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="text-lg font-bold text-yellow-600" id="wo-pending-qc"&gt;2&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="text-xs text-yellow-500"&gt;待质检&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="bg-green-50 rounded-lg p-2 text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="text-lg font-bold text-green-600" id="wo-completed"&gt;4&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="text-xs text-green-500"&gt;已完工&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="woList" class="space-y-3"&gt;&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- ==================== TAB: 品质检验 QC ==================== --&gt;</p>
+<p class="p1">&lt;div id="tab-qc" class="tab-content px-4 pt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="flex items-center justify-between mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h2 class="text-lg font-bold text-gray-800"&gt;品质检验 &lt;span class="text-sm font-normal text-gray-400"&gt;(IPQC/OQC)&lt;/span&gt;&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button onclick="openQCForm()" class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium active:bg-primary-700 transition flex items-center gap-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>新增检验</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="flex gap-2 mb-3 overflow-x-auto scrollbar-hide"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button class="qc-filter-btn bg-primary-600 text-white px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap" onclick="filterQC('all',this)"&gt;全部&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button class="qc-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border" onclick="filterQC('pass',this)"&gt;合格&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button class="qc-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border" onclick="filterQC('fail',this)"&gt;不合格&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button class="qc-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border" onclick="filterQC('pending',this)"&gt;待检&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="qcList" class="space-y-3"&gt;&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- ==================== TAB: 出货管理 Shipping ==================== --&gt;</p>
+<p class="p1">&lt;div id="tab-shipping" class="tab-content px-4 pt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="flex items-center justify-between mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h2 class="text-lg font-bold text-gray-800"&gt;出货管理&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button onclick="openShipForm()" class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium active:bg-primary-700 transition flex items-center gap-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>新建出货</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Shipping Summary --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="bg-white rounded-xl p-4 shadow-sm mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="grid grid-cols-2 gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="text-xs text-gray-500"&gt;今日出货&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="text-xl font-bold text-gray-800"&gt;12 &lt;span class="text-sm font-normal text-gray-400"&gt;单&lt;/span&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="text-xs text-gray-500"&gt;本月累计&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="text-xl font-bold text-gray-800"&gt;287 &lt;span class="text-sm font-normal text-gray-400"&gt;单&lt;/span&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="shipList" class="space-y-3"&gt;&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- ==================== MODALS ==================== --&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- IQC Form Modal --&gt;</p>
+<p class="p1">&lt;div id="iqcModal" class="fixed inset-0 z-50 hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="modal-overlay absolute inset-0 bg-black/50" onclick="closeModal('iqcModal')"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="modal-content absolute bottom-0 left-0 right-0 max-w-md mx-auto bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="sticky top-0 bg-white px-4 py-3 border-b flex items-center justify-between rounded-t-2xl z-10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;h3 class="text-base font-bold"&gt;新增进料登记&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button onclick="closeModal('iqcModal')" class="p-1 rounded-full hover:bg-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;form id="iqcForm" class="p-4 space-y-4" onsubmit="submitIQC(event)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;原材料批号 &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;input type="text" id="iqc-batch" class="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="输入或扫描批号" required&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;button type="button" onclick="simulateScan('iqc-batch')" class="bg-gray-100 px-3 py-2 rounded-lg active:bg-gray-200 transition"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;原材料名称 &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="text" id="iqc-name" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="如：BOPP薄膜" required&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;规格型号 &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="text" id="iqc-spec" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="如：50mm × 100m" required&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;数量 &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="number" id="iqc-qty" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="入库数量" required min="1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;供应商&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="text" id="iqc-supplier" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="供应商名称"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;!-- Mandatory QC Data --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="bg-blue-50 rounded-xl p-3 border border-blue-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex items-center gap-2 mb-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20"&gt;&lt;path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="text-sm font-bold text-blue-700"&gt;进料检测数据（必填）&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="space-y-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="block text-xs text-gray-600 mb-1"&gt;拉力值 (N) &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="number" step="0.1" id="iqc-tension" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="标准值 ≥ 15N" required&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="block text-xs text-gray-600 mb-1"&gt;黏性测试 (级) &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;select id="iqc-sticky" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" required&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;option value=""&gt;请选择等级&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;option value="5"&gt;5级 - 优秀&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;option value="4"&gt;4级 - 良好&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;option value="3"&gt;3级 - 合格&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;option value="2"&gt;2级 - 偏低&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;option value="1"&gt;1级 - 不合格&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="block text-xs text-gray-600 mb-1"&gt;厚度 (mm)&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="number" step="0.01" id="iqc-thickness" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="标准值 0.05 ± 0.01mm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="block text-xs text-gray-600 mb-1"&gt;备注&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;textarea id="iqc-remark" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none" placeholder="检测备注信息"&gt;&lt;/textarea&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button type="submit" class="w-full bg-primary-600 text-white py-3 rounded-xl font-medium active:bg-primary-700 transition"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>提交入库</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/form&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- Work Order Form Modal --&gt;</p>
+<p class="p1">&lt;div id="woModal" class="fixed inset-0 z-50 hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="modal-overlay absolute inset-0 bg-black/50" onclick="closeModal('woModal')"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="modal-content absolute bottom-0 left-0 right-0 max-w-md mx-auto bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="sticky top-0 bg-white px-4 py-3 border-b flex items-center justify-between rounded-t-2xl z-10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;h3 class="text-base font-bold"&gt;新建生产工单&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button onclick="closeModal('woModal')" class="p-1 rounded-full hover:bg-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;form id="woForm" class="p-4 space-y-4" onsubmit="submitWO(event)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;产品名称 &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="text" id="wo-product" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="如：封箱胶带 50mm" required&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;关联原材料批号 &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;select id="wo-material" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" required&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;option value=""&gt;选择已入库原材料&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;计划数量 &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="number" id="wo-plan-qty" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="计划生产数量" required min="1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;成品规格&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="text" id="wo-spec" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="成品规格型号"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;客户订单号&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="text" id="wo-order" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="关联客户订单"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;预计损耗率 (%)&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="number" id="wo-waste" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="如：3" value="3" min="0" max="100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button type="submit" class="w-full bg-primary-600 text-white py-3 rounded-xl font-medium active:bg-primary-700 transition"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>创建工单并开始生产</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/form&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- QC Form Modal --&gt;</p>
+<p class="p1">&lt;div id="qcModal" class="fixed inset-0 z-50 hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="modal-overlay absolute inset-0 bg-black/50" onclick="closeModal('qcModal')"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="modal-content absolute bottom-0 left-0 right-0 max-w-md mx-auto bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="sticky top-0 bg-white px-4 py-3 border-b flex items-center justify-between rounded-t-2xl z-10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;h3 class="text-base font-bold"&gt;新增品质检验&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button onclick="closeModal('qcModal')" class="p-1 rounded-full hover:bg-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;form id="qcForm" class="p-4 space-y-4" onsubmit="submitQC(event)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;检验类型 &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;select id="qc-type" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" required&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;option value=""&gt;选择检验类型&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;option value="IPQC"&gt;IPQC - 制程检验&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;option value="OQC"&gt;OQC - 出货检验&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;关联工单 &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;select id="qc-wo" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" required&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;option value=""&gt;选择待检工单&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;抽检数量 &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="number" id="qc-sample-qty" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="本次抽检数量" required min="1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;合格数量 &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="number" id="qc-pass-qty" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="合格品数量" required min="0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="bg-purple-50 rounded-xl p-3 border border-purple-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex items-center gap-2 mb-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20"&gt;&lt;path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/&gt;&lt;path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="text-sm font-bold text-purple-700"&gt;检测数据（必填）&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="space-y-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="block text-xs text-gray-600 mb-1"&gt;外观检查&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;select id="qc-appearance" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;option value="pass"&gt;合格 - 无明显缺陷&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;option value="fail"&gt;不合格 - 存在缺陷&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="block text-xs text-gray-600 mb-1"&gt;尺寸偏差 (mm)&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="number" step="0.01" id="qc-dimension" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="允许偏差 ±0.5mm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="block text-xs text-gray-600 mb-1"&gt;黏着力测试&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;select id="qc-adhesion" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;option value="pass"&gt;合格&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;option value="fail"&gt;不合格&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="block text-xs text-gray-600 mb-1"&gt;检测备注&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;textarea id="qc-remark" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none" placeholder="详细检测说明"&gt;&lt;/textarea&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button type="submit" class="w-full bg-primary-600 text-white py-3 rounded-xl font-medium active:bg-primary-700 transition"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>提交检验结果</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/form&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- Shipping Form Modal --&gt;</p>
+<p class="p1">&lt;div id="shipModal" class="fixed inset-0 z-50 hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="modal-overlay absolute inset-0 bg-black/50" onclick="closeModal('shipModal')"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="modal-content absolute bottom-0 left-0 right-0 max-w-md mx-auto bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="sticky top-0 bg-white px-4 py-3 border-b flex items-center justify-between rounded-t-2xl z-10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;h3 class="text-base font-bold"&gt;新建出货单&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button onclick="closeModal('shipModal')" class="p-1 rounded-full hover:bg-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;form id="shipForm" class="p-4 space-y-4" onsubmit="submitShip(event)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;客户名称 &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="text" id="ship-customer" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="客户名称" required&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;选择出货成品 &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;select id="ship-product" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" required&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;option value=""&gt;选择已通过质检的成品&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="text-xs text-gray-400 mt-1"&gt;* 仅显示已通过质检且可出货的成品批次&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;出货数量 &lt;span class="text-red-500"&gt;*&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="number" id="ship-qty" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" placeholder="出货数量" required min="1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;物流方式&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;select id="ship-logistics" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;option value="自有车辆"&gt;自有车辆配送&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;option value="第三方物流"&gt;第三方物流&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;option value="客户自提"&gt;客户自提&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="block text-sm font-medium text-gray-700 mb-1"&gt;备注&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;textarea id="ship-remark" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none" placeholder="出货备注"&gt;&lt;/textarea&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button type="submit" class="w-full bg-primary-600 text-white py-3 rounded-xl font-medium active:bg-primary-700 transition"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>确认出货</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/form&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- Toast Notification --&gt;</p>
+<p class="p1">&lt;div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-[100] hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 max-w-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;span id="toastIcon"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;span id="toastMsg"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- Gate Block Modal --&gt;</p>
+<p class="p1">&lt;div id="gateModal" class="fixed inset-0 z-[60] hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="absolute inset-0 bg-black/60" onclick="closeModal('gateModal')"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 max-w-sm w-[90%] text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h3 class="text-lg font-bold text-gray-800 mb-2"&gt;SOP 逻辑闸拦截&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;p id="gateMsg" class="text-sm text-gray-600 mb-4"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button onclick="closeModal('gateModal')" class="w-full bg-red-500 text-white py-2.5 rounded-xl font-medium active:bg-red-600 transition"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>我知道了</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- Notification Panel --&gt;</p>
+<p class="p1">&lt;div id="notifPanel" class="fixed inset-0 z-50 hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="absolute inset-0 bg-black/50" onclick="closeModal('notifPanel')"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="absolute top-0 right-0 bottom-0 w-80 max-w-full bg-white shadow-xl overflow-y-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="sticky top-0 bg-white px-4 py-3 border-b flex items-center justify-between z-10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;h3 class="text-base font-bold"&gt;通知中心&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button onclick="closeModal('notifPanel')" class="p-1 rounded-full hover:bg-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="p-4 space-y-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="bg-red-50 rounded-lg p-3 border-l-4 border-red-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="text-sm font-medium text-red-700"&gt;⚠️ 质检超时预警&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="text-xs text-red-500 mt-1"&gt;工单 WO-20240115-002 质检阶段停留超过24小时&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="text-xs text-gray-400 mt-1"&gt;30分钟前&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="bg-orange-50 rounded-lg p-3 border-l-4 border-orange-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="text-sm font-medium text-orange-700"&gt;⚠️ 进料异常&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="text-xs text-orange-500 mt-1"&gt;批号 RM-20240116-A3 黏性测试偏低，需复检&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="text-xs text-gray-400 mt-1"&gt;2小时前&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="bg-green-50 rounded-lg p-3 border-l-4 border-green-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="text-sm font-medium text-green-700"&gt;✅ 入库完成&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="text-xs text-green-500 mt-1"&gt;工单 WO-001 成品已合格入库，数量 500&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="text-xs text-gray-400 mt-1"&gt;3小时前&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- ==================== BOTTOM NAVIGATION ==================== --&gt;</p>
+<p class="p1">&lt;nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 z-40 safe-area-bottom"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="flex items-center justify-around py-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button class="bottom-nav-item active flex flex-col items-center gap-0.5 px-3 py-1" onclick="switchTab('dashboard')"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="text-xs"&gt;首页&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400" onclick="switchTab('iqc')"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="text-xs"&gt;进料&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400" onclick="switchTab('production')"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="text-xs"&gt;生产&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400" onclick="switchTab('qc')"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="text-xs"&gt;质检&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400" onclick="switchTab('shipping')"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="text-xs"&gt;出货&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/nav&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">// ==================== DATA STORE ====================</p>
+<p class="p1">let data = {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>iqc: [</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'RM-20240115-A1', name: 'BOPP薄膜', spec: '50mm × 100m', qty: 200, supplier: '东莞新材料', tension: 18.5, sticky: 5, thickness: 0.052, status: 'stored', time: '2024-01-15 09:30', remark: '' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'RM-20240115-A2', name: '丙烯酸胶水', spec: '20kg/桶', qty: 50, supplier: '广州化工', tension: 16.2, sticky: 4, thickness: null, status: 'stored', time: '2024-01-15 10:15', remark: '' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'RM-20240116-A3', name: 'PE保护膜', spec: '100mm × 200m', qty: 150, supplier: '深圳包装', tension: 12.1, sticky: 2, thickness: 0.048, status: 'pending', time: '2024-01-16 08:00', remark: '黏性偏低，待复检' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'RM-20240116-A4', name: '牛皮纸', spec: '80g/㎡', qty: 300, supplier: '佛山纸业', tension: 10.5, sticky: 3, thickness: 0.11, status: 'rejected', time: '2024-01-16 11:20', remark: '拉力值不达标' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'RM-20240117-A5', name: '离型纸', spec: '120g/㎡', qty: 180, supplier: '东莞新材料', tension: 17.8, sticky: 4, thickness: 0.13, status: 'stored', time: '2024-01-17 09:00', remark: '' },</p>
+<p class="p1"><span class="Apple-converted-space">  </span>],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>workOrders: [</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'WO-20240115-001', product: '封箱胶带 50mm', material: 'RM-20240115-A1', planQty: 1000, actualQty: 980, waste: 20, spec: '50mm×100m', order: 'SO-001', status: 'completed', time: '2024-01-15 14:00' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'WO-20240115-002', product: '双面胶带 25mm', material: 'RM-20240115-A2', planQty: 2000, actualQty: 1850, waste: 150, spec: '25mm×50m', order: 'SO-002', status: 'pending_qc', time: '2024-01-15 16:30' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'WO-20240116-001', product: '保护膜 100mm', material: 'RM-20240115-A1', planQty: 500, actualQty: 480, waste: 20, spec: '100mm×200m', order: 'SO-003', status: 'pending_qc', time: '2024-01-16 10:00' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'WO-20240116-002', product: '封箱胶带 80mm', material: 'RM-20240117-A5', planQty: 800, actualQty: 0, waste: 0, spec: '80mm×100m', order: 'SO-004', status: 'producing', time: '2024-01-16 14:00' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'WO-20240117-001', product: '警示胶带 50mm', material: 'RM-20240115-A1', planQty: 600, actualQty: 0, waste: 0, spec: '50mm×50m', order: 'SO-005', status: 'producing', time: '2024-01-17 08:30' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'WO-20240117-002', product: '绝缘胶带 19mm', material: 'RM-20240115-A2', planQty: 3000, actualQty: 0, waste: 0, spec: '19mm×20m', order: 'SO-006', status: 'producing', time: '2024-01-17 09:00' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'WO-20240114-001', product: '封箱胶带 48mm', material: 'RM-20240115-A1', planQty: 1500, actualQty: 1470, waste: 30, spec: '48mm×100m', order: 'SO-007', status: 'completed', time: '2024-01-14 10:00' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'WO-20240113-001', product: '美纹纸胶带', material: 'RM-20240115-A2', planQty: 800, actualQty: 790, waste: 10, spec: '30mm×50m', order: 'SO-008', status: 'completed', time: '2024-01-13 14:00' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'WO-20240112-001', product: '铝箔胶带', material: 'RM-20240115-A1', planQty: 400, actualQty: 395, waste: 5, spec: '50mm×30m', order: 'SO-009', status: 'completed', time: '2024-01-12 09:00' },</p>
+<p class="p1"><span class="Apple-converted-space">  </span>],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>qc: [</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'QC-001', type: 'IPQC', woId: 'WO-20240115-001', sampleQty: 50, passQty: 49, appearance: 'pass', dimension: 0.1, adhesion: 'pass', result: 'pass', time: '2024-01-15 17:00', remark: '合格率98%' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'QC-002', type: 'OQC', woId: 'WO-20240115-002', sampleQty: 100, passQty: 0, appearance: 'pass', dimension: 0, adhesion: 'pass', result: 'pending', time: '2024-01-16 09:00', remark: '待完成检验' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'QC-003', type: 'IPQC', woId: 'WO-20240116-001', sampleQty: 30, passQty: 0, appearance: '', dimension: 0, adhesion: '', result: 'pending', time: '2024-01-16 15:00', remark: '待检验' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'QC-004', type: 'OQC', woId: 'WO-20240114-001', sampleQty: 80, passQty: 78, appearance: 'pass', dimension: 0.2, adhesion: 'pass', result: 'pass', time: '2024-01-14 16:00', remark: '' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'QC-005', type: 'IPQC', woId: 'WO-20240113-001', sampleQty: 40, passQty: 35, appearance: 'fail', dimension: 0.8, adhesion: 'pass', result: 'fail', time: '2024-01-13 16:30', remark: '外观存在气泡缺陷' },</p>
+<p class="p1"><span class="Apple-converted-space">  </span>],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>shipping: [</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'SH-20240115-001', customer: '华为科技', product: 'WO-20240115-001', qty: 500, logistics: '自有车辆配送', time: '2024-01-15 18:00', status: 'shipped', remark: '' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'SH-20240114-001', customer: '比亚迪电子', product: 'WO-20240114-001', qty: 800, logistics: '第三方物流', time: '2024-01-14 17:00', status: 'shipped', remark: '' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{ id: 'SH-20240113-001', customer: '富士康科技', product: 'WO-20240113-001', qty: 300, logistics: '客户自提', time: '2024-01-13 17:30', status: 'shipped', remark: '' },</p>
+<p class="p1"><span class="Apple-converted-space">  </span>]</p>
+<p class="p1">};</p>
+<p class="p2"><br></p>
+<p class="p1">// ==================== TAB SWITCHING ====================</p>
+<p class="p1">function switchTab(tab) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.querySelectorAll('.tab-content').forEach(t =&gt; t.classList.remove('active'));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('tab-' + tab).classList.add('active');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.querySelectorAll('.bottom-nav-item').forEach(b =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>b.classList.remove('active');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>b.classList.add('text-gray-400');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p1"><span class="Apple-converted-space">  </span>event.currentTarget.classList.add('active');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>event.currentTarget.classList.remove('text-gray-400');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderAll();</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ==================== MODAL HELPERS ====================</p>
+<p class="p1">function openModal(id) { document.getElementById(id).classList.remove('hidden'); }</p>
+<p class="p1">function closeModal(id) { document.getElementById(id).classList.add('hidden'); }</p>
+<p class="p2"><br></p>
+<p class="p1">// ==================== TOAST ====================</p>
+<p class="p1">function showToast(msg, type = 'success') {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const toast = document.getElementById('toast');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const icon = document.getElementById('toastIcon');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const msgEl = document.getElementById('toastMsg');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const colors = {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>success: 'bg-green-600 text-white',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>error: 'bg-red-600 text-white',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>warning: 'bg-orange-500 text-white',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>info: 'bg-blue-600 text-white'</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const icons = {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>success: '✅',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>error: '❌',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>warning: '⚠️',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>info: 'ℹ️'</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>toast.firstElementChild.className = `px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 max-w-sm ${colors[type]}`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>icon.textContent = icons[type];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>msgEl.textContent = msg;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>toast.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>setTimeout(() =&gt; toast.classList.add('hidden'), 3000);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ==================== GATE BLOCK ====================</p>
+<p class="p1">function showGateBlock(msg) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('gateMsg').textContent = msg;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>openModal('gateModal');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ==================== NOTIFICATIONS ====================</p>
+<p class="p1">function showNotifications() { openModal('notifPanel'); }</p>
+<p class="p2"><br></p>
+<p class="p1">// ==================== SIMULATE SCAN ====================</p>
+<p class="p1">function simulateScan(inputId) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const prefixes = { 'iqc-batch': 'RM-202401' };</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const prefix = prefixes[inputId] || 'SC-';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const code = prefix + Math.floor(1000 + Math.random() * 9000) + '-' + String.fromCharCode(65 + Math.floor(Math.random() * 4));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById(inputId).value = code;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>showToast('扫码成功: ' + code, 'info');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ==================== RENDER IQC LIST ====================</p>
+<p class="p1">function renderIQC(filter = 'all') {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const list = document.getElementById('iqcList');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>let items = data.iqc;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (filter !== 'all') items = items.filter(i =&gt; i.status === filter);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (items.length === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>list.innerHTML = '&lt;div class="text-center py-8 text-gray-400 text-sm"&gt;暂无数据&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>list.innerHTML = items.map(item =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const statusMap = {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>stored: { label: '已入库', color: 'bg-green-100 text-green-700', border: 'gate-pass' },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>pending: { label: '待复检', color: 'bg-yellow-100 text-yellow-700', border: '' },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>rejected: { label: '不合格', color: 'bg-red-100 text-red-700', border: 'gate-blocked' }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const s = statusMap[item.status];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return `</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="bg-white rounded-xl p-4 shadow-sm card-enter ${s.border}"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex items-start justify-between mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h4 class="text-sm font-bold text-gray-800"&gt;${item.name}&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-xs text-gray-400"&gt;${item.id}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="status-badge ${s.color}"&gt;${s.label}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;规格: ${item.spec}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;数量: ${item.qty}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;拉力: ${item.tension}N&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;黏性: ${item.sticky}级&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex items-center justify-between pt-2 border-t border-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="text-xs text-gray-400"&gt;${item.supplier || '-'}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="text-xs text-gray-400"&gt;${item.time}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>${item.remark ? `&lt;div class="mt-2 text-xs text-orange-600 bg-orange-50 rounded px-2 py-1"&gt;📝 ${item.remark}&lt;/div&gt;` : ''}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}).join('');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function filterIQC(filter, btn) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.querySelectorAll('.iqc-filter-btn').forEach(b =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>b.className = 'iqc-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p1"><span class="Apple-converted-space">  </span>btn.className = 'iqc-filter-btn bg-primary-600 text-white px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderIQC(filter);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ==================== RENDER WORK ORDER LIST ====================</p>
+<p class="p1">function renderWO() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const list = document.getElementById('woList');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const statusMap = {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>producing: { label: '生产中', color: 'bg-blue-100 text-blue-700', icon: '🔧' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>pending_qc: { label: '待质检', color: 'bg-yellow-100 text-yellow-700', icon: '🔍' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>completed: { label: '已完工', color: 'bg-green-100 text-green-700', icon: '✅' }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>let producing = 0, pendingQc = 0, completed = 0;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>data.workOrders.forEach(w =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (w.status === 'producing') producing++;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>else if (w.status === 'pending_qc') pendingQc++;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>else if (w.status === 'completed') completed++;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('wo-producing').textContent = producing;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('wo-pending-qc').textContent = pendingQc;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('wo-completed').textContent = completed;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>list.innerHTML = data.workOrders.map(wo =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const s = statusMap[wo.status];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const progress = wo.planQty &gt; 0 ? Math.round((wo.actualQty / wo.planQty) * 100) : 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return `</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="bg-white rounded-xl p-4 shadow-sm card-enter"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex items-start justify-between mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h4 class="text-sm font-bold text-gray-800"&gt;${wo.product}&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-xs text-gray-400"&gt;${wo.id}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="status-badge ${s.color}"&gt;${s.icon} ${s.label}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;原材料: ${wo.material}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;订单: ${wo.order || '-'}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;计划: ${wo.planQty}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;完成: ${wo.actualQty}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>${wo.status !== 'completed' ? `</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="flex justify-between text-xs text-gray-500 mb-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span&gt;生产进度&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span&gt;${progress}%&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="w-full bg-gray-200 rounded-full h-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="h-2 rounded-full transition-all ${wo.status === 'producing' ? 'bg-blue-500' : 'bg-yellow-500'}" style="width:${progress}%"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;` : `</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="text-xs text-green-600 bg-green-50 rounded px-2 py-1 mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>损耗: ${wo.waste} | 良率: ${wo.planQty &gt; 0 ? Math.round(((wo.planQty - wo.waste) / wo.planQty) * 100) : 0}%</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;`}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex items-center justify-between pt-2 border-t border-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="text-xs text-gray-400"&gt;规格: ${wo.spec}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="text-xs text-gray-400"&gt;${wo.time}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>${wo.status === 'producing' ? `</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mt-2 flex gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;button onclick="completeWO('${wo.id}')" class="flex-1 bg-yellow-500 text-white py-1.5 rounded-lg text-xs font-medium active:bg-yellow-600 transition"&gt;完成生产&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;` : ''}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}).join('');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function completeWO(woId) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const wo = data.workOrders.find(w =&gt; w.id === woId);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (wo) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>wo.status = 'pending_qc';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>wo.actualQty = wo.planQty - wo.waste;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>renderAll();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>showToast(`工单 ${woId} 已完成生产，转入待质检`, 'success');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ==================== RENDER QC LIST ====================</p>
+<p class="p1">function renderQC(filter = 'all') {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const list = document.getElementById('qcList');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>let items = data.qc;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (filter !== 'all') items = items.filter(i =&gt; i.result === filter);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (items.length === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>list.innerHTML = '&lt;div class="text-center py-8 text-gray-400 text-sm"&gt;暂无数据&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>list.innerHTML = items.map(item =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const resultMap = {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>pass: { label: '合格', color: 'bg-green-100 text-green-700', border: 'gate-pass' },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>fail: { label: '不合格', color: 'bg-red-100 text-red-700', border: 'gate-blocked' },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>pending: { label: '待检', color: 'bg-yellow-100 text-yellow-700', border: '' }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const r = resultMap[item.result];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const wo = data.workOrders.find(w =&gt; w.id === item.woId);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return `</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="bg-white rounded-xl p-4 shadow-sm card-enter ${r.border}"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex items-start justify-between mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h4 class="text-sm font-bold text-gray-800"&gt;${item.type} - ${wo ? wo.product : item.woId}&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-xs text-gray-400"&gt;${item.id} | 工单: ${item.woId}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="status-badge ${r.color}"&gt;${r.label}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;抽检: ${item.sampleQty}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;合格: ${item.passQty}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;外观: ${item.appearance === 'pass' ? '✅' : item.appearance === 'fail' ? '❌' : '-'}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;黏着: ${item.adhesion === 'pass' ? '✅' : item.adhesion === 'fail' ? '❌' : '-'}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>${item.result !== 'pending' ? `</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="text-xs ${item.result === 'pass' ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'} rounded px-2 py-1 mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>合格率: ${item.sampleQty &gt; 0 ? Math.round((item.passQty / item.sampleQty) * 100) : 0}%</p>
+<p class="p1"><span class="Apple-converted-space">          </span>${item.result === 'fail' ? ' | ⛔ 系统已锁定该批次，禁止出货' : ''}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;` : `</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mt-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;button onclick="quickQC('${item.id}')" class="w-full bg-purple-500 text-white py-1.5 rounded-lg text-xs font-medium active:bg-purple-600 transition"&gt;录入检测数据&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;`}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex items-center justify-between pt-2 border-t border-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="text-xs text-gray-400"&gt;${item.remark || ''}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="text-xs text-gray-400"&gt;${item.time}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}).join('');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function filterQC(filter, btn) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.querySelectorAll('.qc-filter-btn').forEach(b =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>b.className = 'qc-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p1"><span class="Apple-converted-space">  </span>btn.className = 'qc-filter-btn bg-primary-600 text-white px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderQC(filter);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function quickQC(qcId) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const qc = data.qc.find(q =&gt; q.id === qcId);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!qc) return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const passQty = prompt(`工单 ${qc.woId} 抽检数量: ${qc.sampleQty}\n请输入合格数量:`);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (passQty === null) return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const pq = parseInt(passQty);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (isNaN(pq) || pq &lt; 0 || pq &gt; qc.sampleQty) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>showToast('请输入有效的合格数量', 'error');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>qc.passQty = pq;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>qc.result = pq &gt;= qc.sampleQty * 0.95 ? 'pass' : 'fail';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>qc.appearance = qc.result === 'pass' ? 'pass' : 'fail';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>qc.adhesion = qc.result === 'pass' ? 'pass' : 'fail';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (qc.result === 'pass') {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const wo = data.workOrders.find(w =&gt; w.id === qc.woId);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (wo) wo.status = 'completed';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderAll();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>showToast(qc.result === 'pass' ? '检验合格，批次已解锁' : '检验不合格，批次已锁定', qc.result === 'pass' ? 'success' : 'error');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ==================== RENDER SHIPPING LIST ====================</p>
+<p class="p1">function renderShipping() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const list = document.getElementById('shipList');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (data.shipping.length === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>list.innerHTML = '&lt;div class="text-center py-8 text-gray-400 text-sm"&gt;暂无出货记录&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>list.innerHTML = data.shipping.map(item =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const wo = data.workOrders.find(w =&gt; w.id === item.product);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return `</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="bg-white rounded-xl p-4 shadow-sm card-enter gate-pass"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex items-start justify-between mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h4 class="text-sm font-bold text-gray-800"&gt;${item.customer}&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-xs text-gray-400"&gt;${item.id}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="status-badge bg-green-100 text-green-700"&gt;已出货&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;产品: ${wo ? wo.product : item.product}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;数量: ${item.qty}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;物流: ${item.logistics}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;时间: ${item.time}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="pt-2 border-t border-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="flex items-center gap-1 text-xs text-green-600"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"&gt;&lt;path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span&gt;库存已扣减，销售闭环完成&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}).join('');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ==================== FORM SUBMISSIONS ====================</p>
+<p class="p1">function openIQCForm() { openModal('iqcModal'); }</p>
+<p class="p1">function openWOForm() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Populate material select with stored materials</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const sel = document.getElementById('wo-material');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sel.innerHTML = '&lt;option value=""&gt;选择已入库原材料&lt;/option&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>data.iqc.filter(i =&gt; i.status === 'stored').forEach(i =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>sel.innerHTML += `&lt;option value="${i.id}"&gt;${i.id} - ${i.name} (${i.spec})&lt;/option&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p1"><span class="Apple-converted-space">  </span>openModal('woModal');</p>
+<p class="p1">}</p>
+<p class="p1">function openQCForm() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const sel = document.getElementById('qc-wo');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sel.innerHTML = '&lt;option value=""&gt;选择待检工单&lt;/option&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>data.workOrders.filter(w =&gt; w.status === 'pending_qc').forEach(w =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>sel.innerHTML += `&lt;option value="${w.id}"&gt;${w.id} - ${w.product}&lt;/option&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p1"><span class="Apple-converted-space">  </span>openModal('qcModal');</p>
+<p class="p1">}</p>
+<p class="p1">function openShipForm() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const sel = document.getElementById('ship-product');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sel.innerHTML = '&lt;option value=""&gt;选择已通过质检的成品&lt;/option&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Only show completed work orders that have passed QC</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const passedQC = data.qc.filter(q =&gt; q.result === 'pass').map(q =&gt; q.woId);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>data.workOrders.filter(w =&gt; w.status === 'completed' &amp;&amp; passedQC.includes(w.id)).forEach(w =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>sel.innerHTML += `&lt;option value="${w.id}"&gt;${w.id} - ${w.product} (库存: ${w.actualQty})&lt;/option&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Also check if there are completed WOs without QC - show gate block hint</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const noQCCompleted = data.workOrders.filter(w =&gt; w.status === 'completed' &amp;&amp; !passedQC.includes(w.id));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (noQCCompleted.length &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>sel.innerHTML += `&lt;optgroup label="⛔ 未通过质检 (不可选)"&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>noQCCompleted.forEach(w =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>sel.innerHTML += `&lt;option value="${w.id}" disabled&gt;${w.id} - ${w.product} (无质检记录)&lt;/option&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>sel.innerHTML += `&lt;/optgroup&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>openModal('shipModal');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function submitIQC(e) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>e.preventDefault();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const batch = document.getElementById('iqc-batch').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const name = document.getElementById('iqc-name').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const spec = document.getElementById('iqc-spec').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const qty = parseInt(document.getElementById('iqc-qty').value);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const supplier = document.getElementById('iqc-supplier').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const tension = parseFloat(document.getElementById('iqc-tension').value);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const sticky = parseInt(document.getElementById('iqc-sticky').value);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const thickness = document.getElementById('iqc-thickness').value ? parseFloat(document.getElementById('iqc-thickness').value) : null;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const remark = document.getElementById('iqc-remark').value;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// SOP Logic Gate: Check QC data</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (tension &lt; 15) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>showGateBlock(`进料批号 ${batch} 拉力值 ${tension}N 低于标准值 15N，系统拒绝入库！请安排复检或退货处理。`);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (sticky &lt; 3) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>showGateBlock(`进料批号 ${batch} 黏性测试 ${sticky}级 低于合格标准 3级，系统拒绝入库！请联系供应商处理。`);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const now = new Date();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>data.iqc.unshift({</p>
+<p class="p1"><span class="Apple-converted-space">    </span>id: batch, name, spec, qty, supplier, tension, sticky, thickness,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>status: 'stored', time: timeStr, remark</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>closeModal('iqcModal');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('iqcForm').reset();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderAll();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>showToast(`原材料 ${batch} 已成功入库`, 'success');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function submitWO(e) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>e.preventDefault();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const product = document.getElementById('wo-product').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const material = document.getElementById('wo-material').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const planQty = parseInt(document.getElementById('wo-plan-qty').value);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const spec = document.getElementById('wo-spec').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const order = document.getElementById('wo-order').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const waste = parseInt(document.getElementById('wo-waste').value) || 0;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// SOP Gate: Check material is stored</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const mat = data.iqc.find(i =&gt; i.id === material);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!mat || mat.status !== 'stored') {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>showGateBlock(`原材料批号 ${material} 未入库或状态异常，无法创建工单！请先完成进料的IQC检测。`);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const now = new Date();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const id = `WO-${dateStr}-${String(data.workOrders.length + 1).padStart(3, '0')}`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>data.workOrders.unshift({</p>
+<p class="p1"><span class="Apple-converted-space">    </span>id, product, material, planQty, actualQty: 0, waste: 0, spec, order,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>status: 'producing', time: timeStr</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>closeModal('woModal');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('woForm').reset();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderAll();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>showToast(`工单 ${id} 已创建，开始生产`, 'success');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function submitQC(e) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>e.preventDefault();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const type = document.getElementById('qc-type').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const woId = document.getElementById('qc-wo').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const sampleQty = parseInt(document.getElementById('qc-sample-qty').value);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const passQty = parseInt(document.getElementById('qc-pass-qty').value);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const appearance = document.getElementById('qc-appearance').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const dimension = document.getElementById('qc-dimension').value ? parseFloat(document.getElementById('qc-dimension').value) : 0;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const adhesion = document.getElementById('qc-adhesion').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const remark = document.getElementById('qc-remark').value;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Determine result</p>
+<p class="p1"><span class="Apple-converted-space">  </span>let result = 'pass';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (appearance === 'fail' || adhesion === 'fail' || Math.abs(dimension) &gt; 0.5 || passQty &lt; sampleQty * 0.95) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>result = 'fail';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const now = new Date();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const id = `QC-${String(data.qc.length + 1).padStart(3, '0')}`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>data.qc.unshift({</p>
+<p class="p1"><span class="Apple-converted-space">    </span>id, type, woId, sampleQty, passQty, appearance, dimension, adhesion, result, time: timeStr, remark</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// If pass, update WO status to completed</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (result === 'pass') {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const wo = data.workOrders.find(w =&gt; w.id === woId);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (wo) wo.status = 'completed';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>closeModal('qcModal');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('qcForm').reset();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderAll();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (result === 'pass') {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>showToast(`检验合格！工单 ${woId} 已解锁，可安排出货`, 'success');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>showToast(`检验不合格！工单 ${woId} 批次已锁定，禁止出货`, 'error');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function submitShip(e) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>e.preventDefault();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const customer = document.getElementById('ship-customer').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const productId = document.getElementById('ship-product').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const qty = parseInt(document.getElementById('ship-qty').value);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const logistics = document.getElementById('ship-logistics').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const remark = document.getElementById('ship-remark').value;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// SOP Gate: Check QC status</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const passedQC = data.qc.filter(q =&gt; q.result === 'pass').map(q =&gt; q.woId);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!passedQC.includes(productId)) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>showGateBlock(`成品批次 ${productId} 未通过品质检验，系统禁止出货！请先完成IPQC/OQC检验。`);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Check inventory</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const wo = data.workOrders.find(w =&gt; w.id === productId);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (wo &amp;&amp; qty &gt; wo.actualQty) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>showGateBlock(`出货数量 ${qty} 超过可用库存 ${wo.actualQty}，请调整出货数量！`);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const now = new Date();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const id = `SH-${dateStr}-${String(data.shipping.length + 1).padStart(3, '0')}`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>data.shipping.unshift({</p>
+<p class="p1"><span class="Apple-converted-space">    </span>id, customer, product: productId, qty, logistics, time: timeStr, status: 'shipped', remark</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Deduct inventory</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (wo) wo.actualQty -= qty;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>closeModal('shipModal');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('shipForm').reset();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderAll();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>showToast(`出货单 ${id} 已确认，库存已扣减`, 'success');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ==================== UPDATE DASHBOARD ====================</p>
+<p class="p1">function updateDashboard() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const producing = data.workOrders.filter(w =&gt; w.status === 'producing').length;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const pendingQc = data.workOrders.filter(w =&gt; w.status === 'pending_qc').length;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const ready = data.workOrders.filter(w =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const passedQC = data.qc.filter(q =&gt; q.result === 'pass').map(q =&gt; q.woId);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return w.status === 'completed' &amp;&amp; passedQC.includes(w.id) &amp;&amp; w.actualQty &gt; 0;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}).length;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('dash-producing').textContent = producing;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('dash-qc').textContent = pendingQc;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('dash-ready').textContent = ready;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ==================== RENDER ALL ====================</p>
+<p class="p1">function renderAll() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderIQC();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderWO();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderQC();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderShipping();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>updateDashboard();</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// Initial render</p>
+<p class="p1">renderAll();</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p2"><br></p>
+</body>
+</html>
