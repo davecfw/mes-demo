@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>轻量MES系统</title>
+<title>轻量MES系统 v2.0 - 胶带工厂专用</title>
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <link href="https://cdn.jsdelivr.net/fontsource/css/noto-sans-sc@latest/chinese-simplified/index.css" rel="stylesheet">
 <style>
@@ -25,24 +25,31 @@ body { background: #f0f2f5; overscroll-behavior: none; }
 input, select, textarea { font-size: 16px !important; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.machine-status-running { background: #dcfce7; color: #16a34a; }
+.machine-status-idle { background: #fef3c7; color: #d97706; }
+.machine-status-maintenance { background: #fee2e2; color: #dc2626; }
+.process-step { position: relative; padding-left: 2rem; }
+.process-step::before { content: ''; position: absolute; left: 0.5rem; top: 0; bottom: 0; width: 2px; background: #e5e7eb; }
+.process-step:last-child::before { display: none; }
+.process-dot { position: absolute; left: 0; width: 1rem; height: 1rem; border-radius: 50%; background: #3b82f6; border: 2px solid white; }
+.process-dot.done { background: #22c55e; }
+.process-dot.current { background: #f59e0b; }
 </style>
 </head>
 <body class="max-w-md mx-auto bg-gray-50 min-h-screen pb-20 relative">
 
-<!-- Status Bar Spacer -->
 <div class="h-11 bg-blue-600"></div>
 
-<!-- Header -->
 <header class="bg-blue-600 text-white px-4 pb-4 pt-1 sticky top-0 z-40 shadow-lg">
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-lg font-bold tracking-wide">轻量 MES</h1>
-      <p class="text-xs text-blue-200">智能制造执行系统</p>
+      <h1 class="text-lg font-bold tracking-wide">轻量 MES <span class="text-xs font-normal bg-blue-500 px-2 py-0.5 rounded">v2.0</span></h1>
+      <p class="text-xs text-blue-200">胶带工厂智能制造系统</p>
     </div>
     <div class="flex items-center gap-3">
       <button onclick="showNotifications()" class="relative p-2 rounded-full hover:bg-blue-500 transition">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-        <span id="notifBadge" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">3</span>
+        <span id="notifBadge" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">5</span>
       </button>
       <div class="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center text-sm font-bold">张</div>
     </div>
@@ -51,85 +58,50 @@ input, select, textarea { font-size: 16px !important; }
 
 <!-- ==================== TAB: 首页 Dashboard ==================== -->
 <div id="tab-dashboard" class="tab-content active px-4 pt-4">
-  <div class="grid grid-cols-3 gap-3 mb-4">
-    <div class="bg-white rounded-xl p-3 shadow-sm card-enter text-center border-l-4 border-blue-500">
-      <div class="text-2xl font-bold text-blue-600" id="dash-producing">3</div>
-      <div class="text-xs text-gray-500 mt-1">生产中</div>
+  <div class="grid grid-cols-4 gap-2 mb-4">
+    <div class="bg-white rounded-xl p-2 shadow-sm card-enter text-center border-l-4 border-blue-500">
+      <div class="text-xl font-bold text-blue-600" id="dash-producing">3</div>
+      <div class="text-xs text-gray-500">生产中</div>
     </div>
-    <div class="bg-white rounded-xl p-3 shadow-sm card-enter text-center border-l-4 border-amber-500" style="animation-delay:0.1s">
-      <div class="text-2xl font-bold text-amber-600" id="dash-qc">2</div>
-      <div class="text-xs text-gray-500 mt-1">待质检</div>
+    <div class="bg-white rounded-xl p-2 shadow-sm card-enter text-center border-l-4 border-amber-500" style="animation-delay:0.05s">
+      <div class="text-xl font-bold text-amber-600" id="dash-qc">2</div>
+      <div class="text-xs text-gray-500">待质检</div>
     </div>
-    <div class="bg-white rounded-xl p-3 shadow-sm card-enter text-center border-l-4 border-green-500" style="animation-delay:0.2s">
-      <div class="text-2xl font-bold text-green-600" id="dash-ready">5</div>
-      <div class="text-xs text-gray-500 mt-1">可出货</div>
+    <div class="bg-white rounded-xl p-2 shadow-sm card-enter text-center border-l-4 border-green-500" style="animation-delay:0.1s">
+      <div class="text-xl font-bold text-green-600" id="dash-ready">5</div>
+      <div class="text-xs text-gray-500">可出货</div>
     </div>
+    <div class="bg-white rounded-xl p-2 shadow-sm card-enter text-center border-l-4 border-purple-500" style="animation-delay:0.15s">
+      <div class="text-xl font-bold text-purple-600" id="dash-remnant">4</div>
+      <div class="text-xs text-gray-500">零头卷</div>
+    </div>
+  </div>
+
+  <!-- Machine Status -->
+  <div class="mb-4">
+    <h3 class="text-sm font-bold text-gray-700 mb-2">机台状态</h3>
+    <div class="grid grid-cols-2 gap-2" id="machineStatus"></div>
   </div>
 
   <!-- Delay Alerts -->
   <div class="mb-4">
     <h3 class="text-sm font-bold text-gray-700 mb-2 flex items-center gap-1">
       <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-      延迟预警
+      异常预警
     </h3>
-    <div id="alertList" class="space-y-2">
+    <div class="space-y-2">
       <div class="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2 gate-blocked">
         <span class="pulse-dot inline-block w-2 h-2 bg-red-500 rounded-full mt-1.5 flex-shrink-0"></span>
         <div>
-          <p class="text-sm font-medium text-red-700">工单 WO-20240115-002</p>
-          <p class="text-xs text-red-500">质检阶段已停留 28 小时，超出24小时阈值</p>
+          <p class="text-sm font-medium text-red-700">母卷 JR-001 裁切损耗超标</p>
+          <p class="text-xs text-red-500">实际损耗 8.2% 超过阈值 5%</p>
         </div>
       </div>
       <div class="bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-start gap-2">
         <span class="pulse-dot inline-block w-2 h-2 bg-orange-500 rounded-full mt-1.5 flex-shrink-0"></span>
         <div>
-          <p class="text-sm font-medium text-orange-700">进料批号 RM-20240116-A3</p>
-          <p class="text-xs text-orange-500">黏性测试数值偏低，待复检确认</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Recent Activity -->
-  <div class="mb-4">
-    <h3 class="text-sm font-bold text-gray-700 mb-2">最近动态</h3>
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-      <div class="divide-y divide-gray-100">
-        <div class="p-3 flex items-center gap-3">
-          <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm text-gray-800 truncate">工单 WO-001 已完成质检，合格入库</p>
-            <p class="text-xs text-gray-400">10 分钟前</p>
-          </div>
-        </div>
-        <div class="p-3 flex items-center gap-3">
-          <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm text-gray-800 truncate">原材料 RM-0116-A3 已扫码入库</p>
-            <p class="text-xs text-gray-400">35 分钟前</p>
-          </div>
-        </div>
-        <div class="p-3 flex items-center gap-3">
-          <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm text-gray-800 truncate">新工单 WO-003 已创建，开始生产</p>
-            <p class="text-xs text-gray-400">1 小时前</p>
-          </div>
-        </div>
-        <div class="p-3 flex items-center gap-3">
-          <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm text-gray-800 truncate">进料 RM-0116-A3 黏性值偏低，需复检</p>
-            <p class="text-xs text-gray-400">2 小时前</p>
-          </div>
+          <p class="text-sm font-medium text-orange-700">零头卷 RR-003 存放超7天</p>
+          <p class="text-xs text-orange-500">建议优先使用或安排复检</p>
         </div>
       </div>
     </div>
@@ -138,118 +110,129 @@ input, select, textarea { font-size: 16px !important; }
   <!-- Quick Actions -->
   <div class="mb-4">
     <h3 class="text-sm font-bold text-gray-700 mb-2">快捷操作</h3>
-    <div class="grid grid-cols-4 gap-3">
-      <button onclick="switchTab('iqc');setTimeout(()=>openIQCForm(),100)" class="bg-white rounded-xl p-3 shadow-sm flex flex-col items-center gap-1 active:bg-gray-100 transition">
-        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+    <div class="grid grid-cols-4 gap-2">
+      <button onclick="switchTab('jumbo')" class="bg-white rounded-xl p-2 shadow-sm flex flex-col items-center gap-1 active:bg-gray-100 transition">
+        <div class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
         </div>
-        <span class="text-xs text-gray-600">进料登记</span>
+        <span class="text-xs text-gray-600">母卷</span>
       </button>
-      <button onclick="switchTab('production');setTimeout(()=>openWOForm(),100)" class="bg-white rounded-xl p-3 shadow-sm flex flex-col items-center gap-1 active:bg-gray-100 transition">
-        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/></svg>
+      <button onclick="switchTab('production')" class="bg-white rounded-xl p-2 shadow-sm flex flex-col items-center gap-1 active:bg-gray-100 transition">
+        <div class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         </div>
-        <span class="text-xs text-gray-600">新建工单</span>
+        <span class="text-xs text-gray-600">生产</span>
       </button>
-      <button onclick="switchTab('qc');setTimeout(()=>openQCForm(),100)" class="bg-white rounded-xl p-3 shadow-sm flex flex-col items-center gap-1 active:bg-gray-100 transition">
-        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+      <button onclick="switchTab('qc')" class="bg-white rounded-xl p-2 shadow-sm flex flex-col items-center gap-1 active:bg-gray-100 transition">
+        <div class="w-9 h-9 bg-purple-100 rounded-full flex items-center justify-center">
           <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
-        <span class="text-xs text-gray-600">质检录入</span>
+        <span class="text-xs text-gray-600">质检</span>
       </button>
-      <button onclick="switchTab('shipping');setTimeout(()=>openShipForm(),100)" class="bg-white rounded-xl p-3 shadow-sm flex flex-col items-center gap-1 active:bg-gray-100 transition">
-        <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-          <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+      <button onclick="switchTab('shipping')" class="bg-white rounded-xl p-2 shadow-sm flex flex-col items-center gap-1 active:bg-gray-100 transition">
+        <div class="w-9 h-9 bg-orange-100 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
         </div>
-        <span class="text-xs text-gray-600">出货登记</span>
+        <span class="text-xs text-gray-600">出货</span>
       </button>
     </div>
   </div>
 
-  <!-- SOP Flow Diagram -->
+  <!-- SOP Flow -->
   <div class="mb-4">
-    <h3 class="text-sm font-bold text-gray-700 mb-2">SOP 流程概览</h3>
+    <h3 class="text-sm font-bold text-gray-700 mb-2">胶带生产 SOP 流程</h3>
     <div class="bg-white rounded-xl p-4 shadow-sm">
       <div class="flex items-center justify-between text-xs">
         <div class="flex flex-col items-center gap-1">
-          <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">进</div>
-          <span class="text-gray-600">进料</span>
+          <div class="w-9 h-9 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xs">进</div>
+          <span class="text-gray-600">母卷进料</span>
         </div>
-        <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
         <div class="flex flex-col items-center gap-1">
-          <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">加</div>
-          <span class="text-gray-600">加工</span>
+          <div class="w-9 h-9 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xs">复</div>
+          <span class="text-gray-600">复卷</span>
         </div>
-        <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
         <div class="flex flex-col items-center gap-1">
-          <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">检</div>
+          <div class="w-9 h-9 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-xs">切</div>
+          <span class="text-gray-600">裁切</span>
+        </div>
+        <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        <div class="flex flex-col items-center gap-1">
+          <div class="w-9 h-9 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xs">检</div>
           <span class="text-gray-600">质检</span>
         </div>
-        <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
         <div class="flex flex-col items-center gap-1">
-          <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">出</div>
-          <span class="text-gray-600">出货</span>
+          <div class="w-9 h-9 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-xs">箱</div>
+          <span class="text-gray-600">装箱</span>
         </div>
       </div>
-      <div class="mt-3 pt-3 border-t border-gray-100">
-        <div class="flex items-center gap-2 text-xs text-gray-500">
-          <svg class="w-3.5 h-3.5 text-red-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-          <span>每个节点均设有SOP逻辑闸，不合规则自动拦截</span>
-        </div>
+      <div class="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
+        <p>📐 裁切公式：产出条数 = ⌊(母卷宽 - 2×边料) / (客户宽 + 刀口损耗)⌋</p>
+        <p class="mt-1">🔄 零头卷自动关联下一工单，减少浪费</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ==================== TAB: 进料管理 IQC ==================== -->
-<div id="tab-iqc" class="tab-content px-4 pt-4">
+<!-- ==================== TAB: 母卷管理 ==================== -->
+<div id="tab-jumbo" class="tab-content px-4 pt-4">
   <div class="flex items-center justify-between mb-4">
-    <h2 class="text-lg font-bold text-gray-800">进料管理 <span class="text-sm font-normal text-gray-400">(IQC)</span></h2>
-    <button onclick="openIQCForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium active:bg-blue-700 transition flex items-center gap-1">
+    <h2 class="text-lg font-bold text-gray-800">母卷管理</h2>
+    <button onclick="openJumboForm()" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium active:bg-blue-700 transition flex items-center gap-1">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-      新增进料
+      新增母卷
     </button>
   </div>
+
   <div class="flex gap-2 mb-3 overflow-x-auto scrollbar-hide">
-    <button class="iqc-filter-btn bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap" data-filter="all" onclick="filterIQC('all',this)">全部</button>
-    <button class="iqc-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border" data-filter="stored" onclick="filterIQC('stored',this)">已入库</button>
-    <button class="iqc-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border" data-filter="pending" onclick="filterIQC('pending',this)">待检测</button>
-    <button class="iqc-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border" data-filter="rejected" onclick="filterIQC('rejected',this)">不合格</button>
+    <button class="jumbo-filter-btn bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap" onclick="filterJumbo('all',this)">全部</button>
+    <button class="jumbo-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border" onclick="filterJumbo('full',this)">整卷</button>
+    <button class="jumbo-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border" onclick="filterJumbo('partial',this)">使用中</button>
+    <button class="jumbo-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border" onclick="filterJumbo('remnant',this)">零头卷</button>
   </div>
-  <div id="iqcList" class="space-y-3"></div>
+
+  <div id="jumboList" class="space-y-3"></div>
 </div>
 
-<!-- ==================== TAB: 加工管理 Production ==================== -->
+<!-- ==================== TAB: 生产工单 ==================== -->
 <div id="tab-production" class="tab-content px-4 pt-4">
   <div class="flex items-center justify-between mb-4">
     <h2 class="text-lg font-bold text-gray-800">生产工单</h2>
-    <button onclick="openWOForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium active:bg-blue-700 transition flex items-center gap-1">
+    <button onclick="openWOForm()" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium active:bg-blue-700 transition flex items-center gap-1">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
       新建工单
     </button>
   </div>
-  <div class="grid grid-cols-3 gap-2 mb-4">
+
+  <div class="grid grid-cols-4 gap-2 mb-4">
     <div class="bg-blue-50 rounded-lg p-2 text-center">
-      <div class="text-lg font-bold text-blue-600" id="wo-producing">3</div>
-      <div class="text-xs text-blue-500">生产中</div>
+      <div class="text-lg font-bold text-blue-600" id="wo-draft">1</div>
+      <div class="text-xs text-blue-500">待排产</div>
     </div>
-    <div class="bg-amber-50 rounded-lg p-2 text-center">
-      <div class="text-lg font-bold text-amber-600" id="wo-pending-qc">2</div>
-      <div class="text-xs text-amber-500">待质检</div>
+    <div class="bg-cyan-50 rounded-lg p-2 text-center">
+      <div class="text-lg font-bold text-cyan-600" id="wo-rewind">2</div>
+      <div class="text-xs text-cyan-500">复卷中</div>
     </div>
     <div class="bg-green-50 rounded-lg p-2 text-center">
-      <div class="text-lg font-bold text-green-600" id="wo-completed">4</div>
-      <div class="text-xs text-green-500">已完工</div>
+      <div class="text-lg font-bold text-green-600" id="wo-slit">2</div>
+      <div class="text-xs text-green-500">裁切中</div>
+    </div>
+    <div class="bg-purple-50 rounded-lg p-2 text-center">
+      <div class="text-lg font-bold text-purple-600" id="wo-done">3</div>
+      <div class="text-xs text-purple-500">已完工</div>
     </div>
   </div>
+
   <div id="woList" class="space-y-3"></div>
 </div>
 
-<!-- ==================== TAB: 品质检验 QC ==================== -->
+<!-- ==================== TAB: 品质检验 ==================== -->
 <div id="tab-qc" class="tab-content px-4 pt-4">
   <div class="flex items-center justify-between mb-4">
-    <h2 class="text-lg font-bold text-gray-800">品质检验 <span class="text-sm font-normal text-gray-400">(IPQC/OQC)</span></h2>
-    <button onclick="openQCForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium active:bg-blue-700 transition flex items-center gap-1">
+    <h2 class="text-lg font-bold text-gray-800">品质检验</h2>
+    <button onclick="openQCForm()" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium active:bg-blue-700 transition flex items-center gap-1">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
       新增检验
     </button>
@@ -263,11 +246,11 @@ input, select, textarea { font-size: 16px !important; }
   <div id="qcList" class="space-y-3"></div>
 </div>
 
-<!-- ==================== TAB: 出货管理 Shipping ==================== -->
+<!-- ==================== TAB: 出货管理 ==================== -->
 <div id="tab-shipping" class="tab-content px-4 pt-4">
   <div class="flex items-center justify-between mb-4">
-    <h2 class="text-lg font-bold text-gray-800">出货管理</h2>
-    <button onclick="openShipForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium active:bg-blue-700 transition flex items-center gap-1">
+    <h2 class="text-lg font-bold text-gray-800">装箱出货</h2>
+    <button onclick="openShipForm()" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium active:bg-blue-700 transition flex items-center gap-1">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
       新建出货
     </button>
@@ -276,11 +259,11 @@ input, select, textarea { font-size: 16px !important; }
     <div class="grid grid-cols-2 gap-4">
       <div>
         <div class="text-xs text-gray-500">今日出货</div>
-        <div class="text-xl font-bold text-gray-800">12 <span class="text-sm font-normal text-gray-400">单</span></div>
+        <div class="text-xl font-bold text-gray-800">12 <span class="text-sm font-normal text-gray-400">箱</span></div>
       </div>
       <div>
         <div class="text-xs text-gray-500">本月累计</div>
-        <div class="text-xl font-bold text-gray-800">287 <span class="text-sm font-normal text-gray-400">单</span></div>
+        <div class="text-xl font-bold text-gray-800">287 <span class="text-sm font-normal text-gray-400">箱</span></div>
       </div>
     </div>
   </div>
@@ -288,79 +271,102 @@ input, select, textarea { font-size: 16px !important; }
 </div>
 
 <!-- ==================== MODALS ==================== -->
-<div id="iqcModal" class="fixed inset-0 z-50 hidden">
-  <div class="modal-overlay absolute inset-0 bg-black/50" onclick="closeModal('iqcModal')"></div>
+
+<!-- Jumbo Roll Form -->
+<div id="jumboModal" class="fixed inset-0 z-50 hidden">
+  <div class="modal-overlay absolute inset-0 bg-black/50" onclick="closeModal('jumboModal')"></div>
   <div class="modal-content absolute bottom-0 left-0 right-0 max-w-md mx-auto bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto">
     <div class="sticky top-0 bg-white px-4 py-3 border-b flex items-center justify-between rounded-t-2xl z-10">
-      <h3 class="text-base font-bold">新增进料登记</h3>
-      <button onclick="closeModal('iqcModal')" class="p-1 rounded-full hover:bg-gray-100">
+      <h3 class="text-base font-bold">新增母卷登记</h3>
+      <button onclick="closeModal('jumboModal')" class="p-1 rounded-full hover:bg-gray-100">
         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     </div>
-    <form id="iqcForm" class="p-4 space-y-4" onsubmit="submitIQC(event)">
+    <form id="jumboForm" class="p-4 space-y-4" onsubmit="submitJumbo(event)">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">原材料批号 <span class="text-red-500">*</span></label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">母卷批号 <span class="text-red-500">*</span></label>
         <div class="flex gap-2">
-          <input type="text" id="iqc-batch" class="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="输入或扫描批号" required>
-          <button type="button" onclick="simulateScan('iqc-batch')" class="bg-gray-100 px-3 py-2 rounded-lg active:bg-gray-200 transition">
+          <input type="text" id="jumbo-id" class="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="输入或扫描批号" required>
+          <button type="button" onclick="simulateScan('jumbo-id','JR-')" class="bg-gray-100 px-3 py-2 rounded-lg active:bg-gray-200 transition">
             <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
           </button>
         </div>
       </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">原材料名称 <span class="text-red-500">*</span></label>
-        <input type="text" id="iqc-name" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="如：BOPP薄膜" required>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">母卷宽度 (mm) <span class="text-red-500">*</span></label>
+          <input type="number" id="jumbo-width" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="如：1000" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">母卷长度 (m) <span class="text-red-500">*</span></label>
+          <input type="number" id="jumbo-length" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="如：4000" required>
+        </div>
       </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">规格型号 <span class="text-red-500">*</span></label>
-        <input type="text" id="iqc-spec" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="如：50mm × 100m" required>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">数量 <span class="text-red-500">*</span></label>
-        <input type="number" id="iqc-qty" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="入库数量" required min="1">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">材质 <span class="text-red-500">*</span></label>
+          <select id="jumbo-material" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+            <option value="">选择材质</option>
+            <option value="BOPP">BOPP薄膜</option>
+            <option value="PE">PE保护膜</option>
+            <option value="PVC">PVC胶带</option>
+            <option value="美纹纸">美纹纸</option>
+            <option value="铝箔">铝箔</option>
+            <option value="布基">布基</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">厚度 (μm)</label>
+          <input type="number" step="0.1" id="jumbo-thickness" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="如：28">
+        </div>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">供应商</label>
-        <input type="text" id="iqc-supplier" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="供应商名称">
+        <input type="text" id="jumbo-supplier" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="供应商名称">
       </div>
+
       <div class="bg-blue-50 rounded-xl p-3 border border-blue-200">
         <div class="flex items-center gap-2 mb-3">
           <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd"/></svg>
           <span class="text-sm font-bold text-blue-700">进料检测数据（必填）</span>
         </div>
         <div class="space-y-3">
-          <div>
-            <label class="block text-xs text-gray-600 mb-1">拉力值 (N) <span class="text-red-500">*</span></label>
-            <input type="number" step="0.1" id="iqc-tension" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="标准值 ≥ 15N" required>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">拉力值 (N/25mm) <span class="text-red-500">*</span></label>
+              <input type="number" step="0.1" id="jumbo-tension" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="≥15N" required>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">初黏性 (号) <span class="text-red-500">*</span></label>
+              <select id="jumbo-sticky" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+                <option value="">请选择</option>
+                <option value="5">5号 - 优秀</option>
+                <option value="4">4号 - 良好</option>
+                <option value="3">3号 - 合格</option>
+                <option value="2">2号 - 偏低</option>
+                <option value="1">1号 - 不合格</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label class="block text-xs text-gray-600 mb-1">黏性测试 (级) <span class="text-red-500">*</span></label>
-            <select id="iqc-sticky" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
-              <option value="">请选择等级</option>
-              <option value="5">5级 - 优秀</option>
-              <option value="4">4级 - 良好</option>
-              <option value="3">3级 - 合格</option>
-              <option value="2">2级 - 偏低</option>
-              <option value="1">1级 - 不合格</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs text-gray-600 mb-1">厚度 (mm)</label>
-            <input type="number" step="0.01" id="iqc-thickness" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="标准值 0.05 ± 0.01mm">
-          </div>
-          <div>
-            <label class="block text-xs text-gray-600 mb-1">备注</label>
-            <textarea id="iqc-remark" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none" placeholder="检测备注信息"></textarea>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">持黏性 (h)</label>
+              <input type="number" step="0.1" id="jumbo-hold" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="≥24h">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">剥离力 (N/25mm)</label>
+              <input type="number" step="0.1" id="jumbo-peel" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="标准值">
+            </div>
           </div>
         </div>
       </div>
-      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium active:bg-blue-700 transition">
-        提交入库
-      </button>
+
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium active:bg-blue-700 transition">提交入库</button>
     </form>
   </div>
 </div>
 
+<!-- Work Order Form -->
 <div id="woModal" class="fixed inset-0 z-50 hidden">
   <div class="modal-overlay absolute inset-0 bg-black/50" onclick="closeModal('woModal')"></div>
   <div class="modal-content absolute bottom-0 left-0 right-0 max-w-md mx-auto bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto">
@@ -372,38 +378,156 @@ input, select, textarea { font-size: 16px !important; }
     </div>
     <form id="woForm" class="p-4 space-y-4" onsubmit="submitWO(event)">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">产品名称 <span class="text-red-500">*</span></label>
-        <input type="text" id="wo-product" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="如：封箱胶带 50mm" required>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">关联原材料批号 <span class="text-red-500">*</span></label>
-        <select id="wo-material" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
-          <option value="">选择已入库原材料</option>
+        <label class="block text-sm font-medium text-gray-700 mb-1">选择母卷 <span class="text-red-500">*</span></label>
+        <select id="wo-jumbo" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required onchange="updateSlitCalc()">
+          <option value="">选择母卷（含零头卷）</option>
         </select>
       </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">计划数量 <span class="text-red-500">*</span></label>
-        <input type="number" id="wo-plan-qty" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="计划生产数量" required min="1">
+
+      <!-- Slit Calculator -->
+      <div class="bg-cyan-50 rounded-xl p-3 border border-cyan-200">
+        <div class="flex items-center gap-2 mb-3">
+          <svg class="w-4 h-4 text-cyan-600" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+          <span class="text-sm font-bold text-cyan-700">裁切计算器</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-gray-600 mb-1">客户宽度 (mm) <span class="text-red-500">*</span></label>
+            <input type="number" id="wo-customer-width" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="如：50" oninput="updateSlitCalc()" required>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-600 mb-1">小卷长度 (m) <span class="text-red-500">*</span></label>
+            <input type="number" id="wo-roll-length" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="如：100" oninput="updateSlitCalc()" required>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mt-2">
+          <div>
+            <label class="block text-xs text-gray-600 mb-1">刀口损耗 (mm)</label>
+            <input type="number" step="0.1" id="wo-blade-loss" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="2" oninput="updateSlitCalc()">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-600 mb-1">边料 (mm/侧)</label>
+            <input type="number" step="0.1" id="wo-edge-waste" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" value="10" oninput="updateSlitCalc()">
+          </div>
+        </div>
+        <div id="slitResult" class="mt-3 bg-white rounded-lg p-2 text-xs text-gray-700">
+          <p>请输入参数后自动计算</p>
+        </div>
       </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">成品规格</label>
-        <input type="text" id="wo-spec" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="成品规格型号">
-      </div>
+
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">客户订单号</label>
         <input type="text" id="wo-order" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="关联客户订单">
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">预计损耗率 (%)</label>
-        <input type="number" id="wo-waste" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="如：3" value="3" min="0" max="100">
+        <label class="block text-sm font-medium text-gray-700 mb-1">复卷张力 (N)</label>
+        <input type="number" step="0.1" id="wo-tension-setting" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="标准张力值" value="15">
       </div>
-      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium active:bg-blue-700 transition">
-        创建工单并开始生产
-      </button>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">指定机台</label>
+        <select id="wo-machine" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+          <option value="">自动分配</option>
+        </select>
+      </div>
+
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium active:bg-blue-700 transition">创建工单</button>
     </form>
   </div>
 </div>
 
+<!-- Process Record Modal -->
+<div id="processModal" class="fixed inset-0 z-50 hidden">
+  <div class="modal-overlay absolute inset-0 bg-black/50" onclick="closeModal('processModal')"></div>
+  <div class="modal-content absolute bottom-0 left-0 right-0 max-w-md mx-auto bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto">
+    <div class="sticky top-0 bg-white px-4 py-3 border-b flex items-center justify-between rounded-t-2xl z-10">
+      <h3 class="text-base font-bold" id="processTitle">工序登记</h3>
+      <button onclick="closeModal('processModal')" class="p-1 rounded-full hover:bg-gray-100">
+        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form id="processForm" class="p-4 space-y-4" onsubmit="submitProcess(event)">
+      <input type="hidden" id="proc-wo-id">
+      <input type="hidden" id="proc-step">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">操作工 <span class="text-red-500">*</span></label>
+        <select id="proc-operator" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+          <option value="">选择操作工</option>
+          <option value="张师傅">张师傅</option>
+          <option value="李师傅">李师傅</option>
+          <option value="王师傅">王师傅</option>
+          <option value="陈师傅">陈师傅</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">机台 <span class="text-red-500">*</span></label>
+        <select id="proc-machine" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+          <option value="">选择机台</option>
+        </select>
+      </div>
+      <div id="rewindFields" class="hidden space-y-3">
+        <div class="bg-cyan-50 rounded-xl p-3 border border-cyan-200">
+          <p class="text-sm font-bold text-cyan-700 mb-2">复卷参数</p>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">设定张力 (N)</label>
+              <input type="number" step="0.1" id="proc-rewind-tension" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="15">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">复卷长度 (m)</label>
+              <input type="number" id="proc-rewind-length" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="2000">
+            </div>
+          </div>
+          <div class="mt-2">
+            <label class="block text-xs text-gray-600 mb-1">复卷速度 (m/min)</label>
+            <input type="number" id="proc-rewind-speed" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="200">
+          </div>
+        </div>
+      </div>
+      <div id="slitFields" class="hidden space-y-3">
+        <div class="bg-green-50 rounded-xl p-3 border border-green-200">
+          <p class="text-sm font-bold text-green-700 mb-2">裁切参数</p>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">刀距/宽度 (mm)</label>
+              <input type="number" step="0.1" id="proc-slit-width" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="50">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">刀数</label>
+              <input type="number" id="proc-slit-knives" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="18">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mt-2">
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">裁切速度 (m/min)</label>
+              <input type="number" id="proc-slit-speed" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="150">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">实际产出 (卷)</label>
+              <input type="number" id="proc-slit-output" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="360">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mt-2">
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">边料重量 (kg)</label>
+              <input type="number" step="0.01" id="proc-slit-edge" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="2.5">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">损耗率 (%)</label>
+              <input type="number" step="0.1" id="proc-slit-loss" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="3.5">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+        <textarea id="proc-remark" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none" placeholder="工序备注"></textarea>
+      </div>
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium active:bg-blue-700 transition">完成工序登记</button>
+    </form>
+  </div>
+</div>
+
+<!-- QC Form -->
 <div id="qcModal" class="fixed inset-0 z-50 hidden">
   <div class="modal-overlay absolute inset-0 bg-black/50" onclick="closeModal('qcModal')"></div>
   <div class="modal-content absolute bottom-0 left-0 right-0 max-w-md mx-auto bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto">
@@ -418,66 +542,70 @@ input, select, textarea { font-size: 16px !important; }
         <label class="block text-sm font-medium text-gray-700 mb-1">检验类型 <span class="text-red-500">*</span></label>
         <select id="qc-type" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
           <option value="">选择检验类型</option>
-          <option value="IPQC">IPQC - 制程检验</option>
-          <option value="OQC">OQC - 出货检验</option>
+          <option value="IQC">IQC - 进料检验</option>
+          <option value="IPQC-复卷">IPQC - 复卷巡检</option>
+          <option value="IPQC-裁切">IPQC - 裁切巡检</option>
+          <option value="OQC">OQC - 成品出货检验</option>
         </select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">关联工单 <span class="text-red-500">*</span></label>
-        <select id="qc-wo" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
-          <option value="">选择待检工单</option>
+        <label class="block text-sm font-medium text-gray-700 mb-1">关联工单/母卷 <span class="text-red-500">*</span></label>
+        <select id="qc-target" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+          <option value="">选择对象</option>
         </select>
       </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">抽检数量 <span class="text-red-500">*</span></label>
-        <input type="number" id="qc-sample-qty" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="本次抽检数量" required min="1">
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">合格数量 <span class="text-red-500">*</span></label>
-        <input type="number" id="qc-pass-qty" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="合格品数量" required min="0">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">抽检数量 <span class="text-red-500">*</span></label>
+          <input type="number" id="qc-sample" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required min="1">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">合格数量 <span class="text-red-500">*</span></label>
+          <input type="number" id="qc-pass" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required min="0">
+        </div>
       </div>
       <div class="bg-purple-50 rounded-xl p-3 border border-purple-200">
-        <div class="flex items-center gap-2 mb-3">
-          <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
-          <span class="text-sm font-bold text-purple-700">检测数据（必填）</span>
-        </div>
+        <p class="text-sm font-bold text-purple-700 mb-2">检测数据</p>
         <div class="space-y-3">
-          <div>
-            <label class="block text-xs text-gray-600 mb-1">外观检查</label>
-            <select id="qc-appearance" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-              <option value="pass">合格 - 无明显缺陷</option>
-              <option value="fail">不合格 - 存在缺陷</option>
-            </select>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">宽度偏差 (mm)</label>
+              <input type="number" step="0.01" id="qc-width-dev" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="±0.5">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">长度偏差 (m)</label>
+              <input type="number" step="0.1" id="qc-length-dev" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="±1">
+            </div>
           </div>
-          <div>
-            <label class="block text-xs text-gray-600 mb-1">尺寸偏差 (mm)</label>
-            <input type="number" step="0.01" id="qc-dimension" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="允许偏差 ±0.5mm">
-          </div>
-          <div>
-            <label class="block text-xs text-gray-600 mb-1">黏着力测试</label>
-            <select id="qc-adhesion" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-              <option value="pass">合格</option>
-              <option value="fail">不合格</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs text-gray-600 mb-1">检测备注</label>
-            <textarea id="qc-remark" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none" placeholder="详细检测说明"></textarea>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">外观检查</label>
+              <select id="qc-appearance" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                <option value="pass">合格</option>
+                <option value="fail">不合格</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">端面平整度</label>
+              <select id="qc-endface" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                <option value="pass">合格</option>
+                <option value="fail">不合格</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
-      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium active:bg-blue-700 transition">
-        提交检验结果
-      </button>
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium active:bg-blue-700 transition">提交检验结果</button>
     </form>
   </div>
 </div>
 
+<!-- Ship Form -->
 <div id="shipModal" class="fixed inset-0 z-50 hidden">
   <div class="modal-overlay absolute inset-0 bg-black/50" onclick="closeModal('shipModal')"></div>
   <div class="modal-content absolute bottom-0 left-0 right-0 max-w-md mx-auto bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto">
     <div class="sticky top-0 bg-white px-4 py-3 border-b flex items-center justify-between rounded-t-2xl z-10">
-      <h3 class="text-base font-bold">新建出货单</h3>
+      <h3 class="text-base font-bold">新建装箱出货单</h3>
       <button onclick="closeModal('shipModal')" class="p-1 rounded-full hover:bg-gray-100">
         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -485,18 +613,23 @@ input, select, textarea { font-size: 16px !important; }
     <form id="shipForm" class="p-4 space-y-4" onsubmit="submitShip(event)">
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">客户名称 <span class="text-red-500">*</span></label>
-        <input type="text" id="ship-customer" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="客户名称" required>
+        <input type="text" id="ship-customer" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">选择出货成品 <span class="text-red-500">*</span></label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">选择成品批次 <span class="text-red-500">*</span></label>
         <select id="ship-product" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
           <option value="">选择已通过质检的成品</option>
         </select>
-        <p class="text-xs text-gray-400 mt-1">* 仅显示已通过质检且可出货的成品批次</p>
       </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">出货数量 <span class="text-red-500">*</span></label>
-        <input type="number" id="ship-qty" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="出货数量" required min="1">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">出货数量 (卷) <span class="text-red-500">*</span></label>
+          <input type="number" id="ship-qty" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required min="1">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">箱数</label>
+          <input type="number" id="ship-boxes" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="自动计算">
+        </div>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">物流方式</label>
@@ -506,17 +639,12 @@ input, select, textarea { font-size: 16px !important; }
           <option value="客户自提">客户自提</option>
         </select>
       </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
-        <textarea id="ship-remark" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none" placeholder="出货备注"></textarea>
-      </div>
-      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium active:bg-blue-700 transition">
-        确认出货
-      </button>
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium active:bg-blue-700 transition">确认出货</button>
     </form>
   </div>
 </div>
 
+<!-- Toast -->
 <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-[100] hidden">
   <div class="px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 max-w-sm">
     <span id="toastIcon"></span>
@@ -524,6 +652,7 @@ input, select, textarea { font-size: 16px !important; }
   </div>
 </div>
 
+<!-- Gate Block Modal -->
 <div id="gateModal" class="fixed inset-0 z-[60] hidden">
   <div class="absolute inset-0 bg-black/60" onclick="closeModal('gateModal')"></div>
   <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 max-w-sm w-[90%] text-center">
@@ -532,12 +661,11 @@ input, select, textarea { font-size: 16px !important; }
     </div>
     <h3 class="text-lg font-bold text-gray-800 mb-2">SOP 逻辑闸拦截</h3>
     <p id="gateMsg" class="text-sm text-gray-600 mb-4"></p>
-    <button onclick="closeModal('gateModal')" class="w-full bg-red-500 text-white py-2.5 rounded-xl font-medium active:bg-red-600 transition">
-      我知道了
-    </button>
+    <button onclick="closeModal('gateModal')" class="w-full bg-red-500 text-white py-2.5 rounded-xl font-medium active:bg-red-600 transition">我知道了</button>
   </div>
 </div>
 
+<!-- Notification Panel -->
 <div id="notifPanel" class="fixed inset-0 z-50 hidden">
   <div class="absolute inset-0 bg-black/50" onclick="closeModal('notifPanel')"></div>
   <div class="absolute top-0 right-0 bottom-0 w-80 max-w-full bg-white shadow-xl overflow-y-auto">
@@ -549,36 +677,42 @@ input, select, textarea { font-size: 16px !important; }
     </div>
     <div class="p-4 space-y-3">
       <div class="bg-red-50 rounded-lg p-3 border-l-4 border-red-500">
-        <p class="text-sm font-medium text-red-700">⚠️ 质检超时预警</p>
-        <p class="text-xs text-red-500 mt-1">工单 WO-20240115-002 质检阶段停留超过24小时</p>
-        <p class="text-xs text-gray-400 mt-1">30分钟前</p>
+        <p class="text-sm font-medium text-red-700">⚠️ 裁切损耗超标</p>
+        <p class="text-xs text-red-500 mt-1">母卷 JR-001 实际损耗 8.2% 超过阈值 5%</p>
+        <p class="text-xs text-gray-400 mt-1">10分钟前</p>
       </div>
       <div class="bg-orange-50 rounded-lg p-3 border-l-4 border-orange-500">
-        <p class="text-sm font-medium text-orange-700">⚠️ 进料异常</p>
-        <p class="text-xs text-orange-500 mt-1">批号 RM-20240116-A3 黏性测试偏低，需复检</p>
+        <p class="text-sm font-medium text-orange-700">⚠️ 零头卷存放超期</p>
+        <p class="text-xs text-orange-500 mt-1">RR-003 存放已超7天，建议优先使用</p>
+        <p class="text-xs text-gray-400 mt-1">1小时前</p>
+      </div>
+      <div class="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
+        <p class="text-sm font-medium text-blue-700">🔧 机台维护提醒</p>
+        <p class="text-xs text-blue-500 mt-1">裁切机 CT-02 已达保养周期</p>
         <p class="text-xs text-gray-400 mt-1">2小时前</p>
       </div>
       <div class="bg-green-50 rounded-lg p-3 border-l-4 border-green-500">
-        <p class="text-sm font-medium text-green-700">✅ 入库完成</p>
-        <p class="text-xs text-green-500 mt-1">工单 WO-001 成品已合格入库，数量 500</p>
+        <p class="text-sm font-medium text-green-700">✅ 工单完工</p>
+        <p class="text-xs text-green-500 mt-1">WO-001 已完成裁切，产出 360 卷</p>
         <p class="text-xs text-gray-400 mt-1">3小时前</p>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Bottom Nav -->
 <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 z-40">
   <div class="flex items-center justify-around py-2">
     <button class="bottom-nav-item active flex flex-col items-center gap-0.5 px-3 py-1" onclick="switchTab('dashboard')">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       <span class="text-xs">首页</span>
     </button>
-    <button class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400" onclick="switchTab('iqc')">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-      <span class="text-xs">进料</span>
+    <button class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400" onclick="switchTab('jumbo')">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+      <span class="text-xs">母卷</span>
     </button>
     <button class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400" onclick="switchTab('production')">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
       <span class="text-xs">生产</span>
     </button>
     <button class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400" onclick="switchTab('qc')">
@@ -586,59 +720,74 @@ input, select, textarea { font-size: 16px !important; }
       <span class="text-xs">质检</span>
     </button>
     <button class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1 text-gray-400" onclick="switchTab('shipping')">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
       <span class="text-xs">出货</span>
     </button>
   </div>
 </nav>
 
 <script>
-let appData = {
-  iqc: [
-    { id: 'RM-20240115-A1', name: 'BOPP薄膜', spec: '50mm × 100m', qty: 200, supplier: '东莞新材料', tension: 18.5, sticky: 5, thickness: 0.052, status: 'stored', time: '2024-01-15 09:30', remark: '' },
-    { id: 'RM-20240115-A2', name: '丙烯酸胶水', spec: '20kg/桶', qty: 50, supplier: '广州化工', tension: 16.2, sticky: 4, thickness: null, status: 'stored', time: '2024-01-15 10:15', remark: '' },
-    { id: 'RM-20240116-A3', name: 'PE保护膜', spec: '100mm × 200m', qty: 150, supplier: '深圳包装', tension: 12.1, sticky: 2, thickness: 0.048, status: 'pending', time: '2024-01-16 08:00', remark: '黏性偏低，待复检' },
-    { id: 'RM-20240116-A4', name: '牛皮纸', spec: '80g/㎡', qty: 300, supplier: '佛山纸业', tension: 10.5, sticky: 3, thickness: 0.11, status: 'rejected', time: '2024-01-16 11:20', remark: '拉力值不达标' },
-    { id: 'RM-20240117-A5', name: '离型纸', spec: '120g/㎡', qty: 180, supplier: '东莞新材料', tension: 17.8, sticky: 4, thickness: 0.13, status: 'stored', time: '2024-01-17 09:00', remark: '' },
+// ==================== DATA STORE ====================
+var appData = {
+  machines: [
+    { id: 'RW-01', name: '复卷机 01', type: 'rewind', status: 'running', operator: '张师傅' },
+    { id: 'RW-02', name: '复卷机 02', type: 'rewind', status: 'idle', operator: '' },
+    { id: 'CT-01', name: '裁切机 01', type: 'slit', status: 'running', operator: '李师傅' },
+    { id: 'CT-02', name: '裁切机 02', type: 'slit', status: 'maintenance', operator: '' }
+  ],
+  jumboRolls: [
+    { id: 'JR-20240115-001', width: 1000, length: 4000, material: 'BOPP', thickness: 28, supplier: '东莞新材料', tension: 18.5, sticky: 5, hold: 48, peel: 3.2, status: 'partial', usedLength: 2500, time: '2024-01-15 09:30' },
+    { id: 'JR-20240115-002', width: 1200, length: 5000, material: 'BOPP', thickness: 30, supplier: '广州化工', tension: 17.2, sticky: 4, hold: 36, peel: 3.0, status: 'full', usedLength: 0, time: '2024-01-15 10:15' },
+    { id: 'JR-20240116-001', width: 1000, length: 4000, material: 'PE', thickness: 50, supplier: '深圳包装', tension: 12.1, sticky: 2, hold: 12, peel: 2.5, status: 'full', usedLength: 0, time: '2024-01-16 08:00', remark: '黏性偏低，待复检' },
+    { id: 'RR-20240113-001', width: 1000, length: 800, material: 'BOPP', thickness: 28, supplier: '东莞新材料', tension: 18.5, sticky: 5, hold: 48, peel: 3.2, status: 'remnant', usedLength: 0, remnantFrom: 'JR-20240113-001', time: '2024-01-13 16:00' },
+    { id: 'RR-20240114-001', width: 1200, length: 1200, material: 'BOPP', thickness: 30, supplier: '广州化工', tension: 17.2, sticky: 4, hold: 36, peel: 3.0, status: 'remnant', usedLength: 0, remnantFrom: 'JR-20240114-001', time: '2024-01-14 11:00' },
+    { id: 'RR-20240112-001', width: 1000, length: 500, material: 'BOPP', thickness: 28, supplier: '东莞新材料', tension: 18.5, sticky: 5, hold: 48, peel: 3.2, status: 'remnant', usedLength: 0, remnantFrom: 'JR-20240112-001', time: '2024-01-12 14:00' },
+    { id: 'RR-20240110-001', width: 1200, length: 600, material: 'BOPP', thickness: 30, supplier: '广州化工', tension: 17.2, sticky: 4, hold: 36, peel: 3.0, status: 'remnant', usedLength: 0, remnantFrom: 'JR-20240110-001', time: '2024-01-10 09:00' }
   ],
   workOrders: [
-    { id: 'WO-20240115-001', product: '封箱胶带 50mm', material: 'RM-20240115-A1', planQty: 1000, actualQty: 980, waste: 20, spec: '50mm×100m', order: 'SO-001', status: 'completed', time: '2024-01-15 14:00' },
-    { id: 'WO-20240115-002', product: '双面胶带 25mm', material: 'RM-20240115-A2', planQty: 2000, actualQty: 1850, waste: 150, spec: '25mm×50m', order: 'SO-002', status: 'pending_qc', time: '2024-01-15 16:30' },
-    { id: 'WO-20240116-001', product: '保护膜 100mm', material: 'RM-20240115-A1', planQty: 500, actualQty: 480, waste: 20, spec: '100mm×200m', order: 'SO-003', status: 'pending_qc', time: '2024-01-16 10:00' },
-    { id: 'WO-20240116-002', product: '封箱胶带 80mm', material: 'RM-20240117-A5', planQty: 800, actualQty: 0, waste: 0, spec: '80mm×100m', order: 'SO-004', status: 'producing', time: '2024-01-16 14:00' },
-    { id: 'WO-20240117-001', product: '警示胶带 50mm', material: 'RM-20240115-A1', planQty: 600, actualQty: 0, waste: 0, spec: '50mm×50m', order: 'SO-005', status: 'producing', time: '2024-01-17 08:30' },
-    { id: 'WO-20240117-002', product: '绝缘胶带 19mm', material: 'RM-20240115-A2', planQty: 3000, actualQty: 0, waste: 0, spec: '19mm×20m', order: 'SO-006', status: 'producing', time: '2024-01-17 09:00' },
-    { id: 'WO-20240114-001', product: '封箱胶带 48mm', material: 'RM-20240115-A1', planQty: 1500, actualQty: 1470, waste: 30, spec: '48mm×100m', order: 'SO-007', status: 'completed', time: '2024-01-14 10:00' },
-    { id: 'WO-20240113-001', product: '美纹纸胶带', material: 'RM-20240115-A2', planQty: 800, actualQty: 790, waste: 10, spec: '30mm×50m', order: 'SO-008', status: 'completed', time: '2024-01-13 14:00' },
-    { id: 'WO-20240112-001', product: '铝箔胶带', material: 'RM-20240115-A1', planQty: 400, actualQty: 395, waste: 5, spec: '50mm×30m', order: 'SO-009', status: 'completed', time: '2024-01-12 09:00' },
+    { id: 'WO-20240115-001', jumboId: 'JR-20240115-001', customerWidth: 50, rollLength: 100, bladeLoss: 2, edgeWaste: 10, order: 'SO-001', status: 'slit_done', tensionSetting: 15, machine: 'CT-01', calcStrips: 18, calcRolls: 720, actualOutput: 710, lossRate: 3.2, time: '2024-01-15 14:00', processes: [
+      { step: 'rewind', operator: '张师傅', machine: 'RW-01', tension: 15, length: 2000, speed: 200, time: '2024-01-15 14:00' },
+      { step: 'slit', operator: '李师傅', machine: 'CT-01', width: 50, knives: 18, speed: 150, output: 710, edge: 2.5, loss: 3.2, time: '2024-01-15 16:30' }
+    ]},
+    { id: 'WO-20240116-001', jumboId: 'JR-20240115-001', customerWidth: 25, rollLength: 50, bladeLoss: 2, edgeWaste: 10, order: 'SO-002', status: 'slitting', tensionSetting: 15, machine: 'CT-01', calcStrips: 36, calcRolls: 1440, actualOutput: 0, lossRate: 0, time: '2024-01-16 10:00', processes: [
+      { step: 'rewind', operator: '张师傅', machine: 'RW-01', tension: 15, length: 1500, speed: 200, time: '2024-01-16 10:00' }
+    ]},
+    { id: 'WO-20240116-002', jumboId: 'JR-20240115-002', customerWidth: 80, rollLength: 100, bladeLoss: 2, edgeWaste: 10, order: 'SO-003', status: 'rewinding', tensionSetting: 18, machine: 'RW-01', calcStrips: 12, calcRolls: 600, actualOutput: 0, lossRate: 0, time: '2024-01-16 14:00', processes: []},
+    { id: 'WO-20240117-001', jumboId: 'RR-20240113-001', customerWidth: 50, rollLength: 50, bladeLoss: 2, edgeWaste: 10, order: 'SO-004', status: 'draft', tensionSetting: 15, machine: '', calcStrips: 18, calcRolls: 288, actualOutput: 0, lossRate: 0, time: '2024-01-17 08:30', processes: []},
+    { id: 'WO-20240117-002', jumboId: 'JR-20240115-002', customerWidth: 19, rollLength: 20, bladeLoss: 2, edgeWaste: 10, order: 'SO-005', status: 'rewinding', tensionSetting: 12, machine: 'RW-02', calcStrips: 54, calcRolls: 13500, actualOutput: 0, lossRate: 0, time: '2024-01-17 09:00', processes: [
+      { step: 'rewind', operator: '王师傅', machine: 'RW-02', tension: 12, length: 2000, speed: 180, time: '2024-01-17 09:00' }
+    ]},
+    { id: 'WO-20240114-001', jumboId: 'JR-20240114-001', customerWidth: 48, rollLength: 100, bladeLoss: 2, edgeWaste: 10, order: 'SO-006', status: 'slit_done', tensionSetting: 15, machine: 'CT-01', calcStrips: 19, calcRolls: 950, actualOutput: 940, lossRate: 2.8, time: '2024-01-14 10:00', processes: [
+      { step: 'rewind', operator: '张师傅', machine: 'RW-01', tension: 15, length: 2000, speed: 200, time: '2024-01-14 10:00' },
+      { step: 'slit', operator: '李师傅', machine: 'CT-01', width: 48, knives: 19, speed: 150, output: 940, edge: 2.2, loss: 2.8, time: '2024-01-14 14:00' }
+    ]},
+    { id: 'WO-20240113-001', jumboId: 'JR-20240113-001', customerWidth: 30, rollLength: 50, bladeLoss: 2, edgeWaste: 10, order: 'SO-007', status: 'slit_done', tensionSetting: 15, machine: 'CT-01', calcStrips: 30, calcRolls: 2400, actualOutput: 2380, lossRate: 2.5, time: '2024-01-13 14:00', processes: [
+      { step: 'rewind', operator: '张师傅', machine: 'RW-01', tension: 15, length: 2000, speed: 200, time: '2024-01-13 14:00' },
+      { step: 'slit', operator: '李师傅', machine: 'CT-01', width: 30, knives: 30, speed: 150, output: 2380, edge: 2.0, loss: 2.5, time: '2024-01-13 16:00' }
+    ]}
   ],
   qc: [
-    { id: 'QC-001', type: 'IPQC', woId: 'WO-20240115-001', sampleQty: 50, passQty: 49, appearance: 'pass', dimension: 0.1, adhesion: 'pass', result: 'pass', time: '2024-01-15 17:00', remark: '合格率98%' },
-    { id: 'QC-002', type: 'OQC', woId: 'WO-20240115-002', sampleQty: 100, passQty: 0, appearance: 'pass', dimension: 0, adhesion: 'pass', result: 'pending', time: '2024-01-16 09:00', remark: '待完成检验' },
-    { id: 'QC-003', type: 'IPQC', woId: 'WO-20240116-001', sampleQty: 30, passQty: 0, appearance: '', dimension: 0, adhesion: '', result: 'pending', time: '2024-01-16 15:00', remark: '待检验' },
-    { id: 'QC-004', type: 'OQC', woId: 'WO-20240114-001', sampleQty: 80, passQty: 78, appearance: 'pass', dimension: 0.2, adhesion: 'pass', result: 'pass', time: '2024-01-14 16:00', remark: '' },
-    { id: 'QC-005', type: 'IPQC', woId: 'WO-20240113-001', sampleQty: 40, passQty: 35, appearance: 'fail', dimension: 0.8, adhesion: 'pass', result: 'fail', time: '2024-01-13 16:30', remark: '外观存在气泡缺陷' },
+    { id: 'QC-001', type: 'IQC', target: 'JR-20240115-001', sample: 1, pass: 1, widthDev: 0, lengthDev: 0, appearance: 'pass', endface: 'pass', result: 'pass', time: '2024-01-15 09:45' },
+    { id: 'QC-002', type: 'IPQC-复卷', target: 'WO-20240115-001', sample: 5, pass: 5, widthDev: 0.1, lengthDev: 0.5, appearance: 'pass', endface: 'pass', result: 'pass', time: '2024-01-15 15:00' },
+    { id: 'QC-003', type: 'IPQC-裁切', target: 'WO-20240115-001', sample: 20, pass: 19, widthDev: 0.2, lengthDev: 0.8, appearance: 'pass', endface: 'pass', result: 'pass', time: '2024-01-15 17:00', remark: '合格率95%' },
+    { id: 'QC-004', type: 'OQC', target: 'WO-20240114-001', sample: 30, pass: 30, widthDev: 0.1, lengthDev: 0.3, appearance: 'pass', endface: 'pass', result: 'pass', time: '2024-01-14 16:00' },
+    { id: 'QC-005', type: 'OQC', target: 'WO-20240113-001', sample: 25, pass: 22, widthDev: 0.8, lengthDev: 1.2, appearance: 'fail', endface: 'pass', result: 'fail', time: '2024-01-13 16:30', remark: '宽度偏差超标' },
+    { id: 'QC-006', type: 'IPQC-裁切', target: 'WO-20240116-001', sample: 10, pass: 0, widthDev: 0, lengthDev: 0, appearance: '', endface: '', result: 'pending', time: '2024-01-16 15:00' }
   ],
   shipping: [
-    { id: 'SH-20240115-001', customer: '华为科技', product: 'WO-20240115-001', qty: 500, logistics: '自有车辆配送', time: '2024-01-15 18:00', status: 'shipped', remark: '' },
-    { id: 'SH-20240114-001', customer: '比亚迪电子', product: 'WO-20240114-001', qty: 800, logistics: '第三方物流', time: '2024-01-14 17:00', status: 'shipped', remark: '' },
-    { id: 'SH-20240113-001', customer: '富士康科技', product: 'WO-20240113-001', qty: 300, logistics: '客户自提', time: '2024-01-13 17:30', status: 'shipped', remark: '' },
+    { id: 'SH-20240115-001', customer: '华为科技', woId: 'WO-20240114-001', qty: 500, boxes: 25, logistics: '自有车辆配送', time: '2024-01-15 18:00' },
+    { id: 'SH-20240114-001', customer: '比亚迪电子', woId: 'WO-20240113-001', qty: 800, boxes: 40, logistics: '第三方物流', time: '2024-01-14 17:00' }
   ]
 };
 
+// ==================== TAB SWITCHING ====================
 function switchTab(tab) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
   document.getElementById('tab-' + tab).classList.add('active');
-  document.querySelectorAll('.bottom-nav-item').forEach(b => {
-    b.classList.remove('active');
-    b.classList.add('text-gray-400');
-  });
+  document.querySelectorAll('.bottom-nav-item').forEach(function(b) { b.classList.remove('active'); b.classList.add('text-gray-400'); });
+  var tabMap = {'dashboard':0,'jumbo':1,'production':2,'qc':3,'shipping':4};
   var btns = document.querySelectorAll('.bottom-nav-item');
-  var tabMap = {'dashboard':0,'iqc':1,'production':2,'qc':3,'shipping':4};
-  if (tabMap[tab] !== undefined) {
-    btns[tabMap[tab]].classList.add('active');
-    btns[tabMap[tab]].classList.remove('text-gray-400');
-  }
+  if (tabMap[tab] !== undefined) { btns[tabMap[tab]].classList.add('active'); btns[tabMap[tab]].classList.remove('text-gray-400'); }
   renderAll();
 }
 
@@ -651,7 +800,7 @@ function showToast(msg, type) {
   var icon = document.getElementById('toastIcon');
   var msgEl = document.getElementById('toastMsg');
   var colors = { success: 'bg-green-600 text-white', error: 'bg-red-600 text-white', warning: 'bg-orange-500 text-white', info: 'bg-blue-600 text-white' };
-  var icons = { success: '✅', error: '❌', warning: '⚠️', info: '️' };
+  var icons = { success: '✅', error: '', warning: '⚠️', info: 'ℹ️' };
   toast.firstElementChild.className = 'px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 max-w-sm ' + colors[type];
   icon.textContent = icons[type];
   msgEl.textContent = msg;
@@ -659,119 +808,345 @@ function showToast(msg, type) {
   setTimeout(function() { toast.classList.add('hidden'); }, 3000);
 }
 
-function showGateBlock(msg) {
-  document.getElementById('gateMsg').textContent = msg;
-  openModal('gateModal');
-}
-
+function showGateBlock(msg) { document.getElementById('gateMsg').textContent = msg; openModal('gateModal'); }
 function showNotifications() { openModal('notifPanel'); }
 
-function simulateScan(inputId) {
-  var code = 'RM-202401' + Math.floor(1000 + Math.random() * 9000) + '-' + String.fromCharCode(65 + Math.floor(Math.random() * 4));
+function simulateScan(inputId, prefix) {
+  prefix = prefix || 'JR-';
+  var code = prefix + '202401' + Math.floor(1000 + Math.random() * 9000) + '-' + String.fromCharCode(65 + Math.floor(Math.random() * 4));
   document.getElementById(inputId).value = code;
   showToast('扫码成功: ' + code, 'info');
 }
 
-function renderIQC(filter) {
+// ==================== SLIT CALCULATOR ====================
+function updateSlitCalc() {
+  var jumboId = document.getElementById('wo-jumbo').value;
+  var customerWidth = parseFloat(document.getElementById('wo-customer-width').value);
+  var rollLength = parseFloat(document.getElementById('wo-roll-length').value);
+  var bladeLoss = parseFloat(document.getElementById('wo-blade-loss').value) || 2;
+  var edgeWaste = parseFloat(document.getElementById('wo-edge-waste').value) || 10;
+  var resultDiv = document.getElementById('slitResult');
+
+  if (!jumboId || !customerWidth || !rollLength) {
+    resultDiv.innerHTML = '<p class="text-gray-400">请输入完整参数</p>';
+    return;
+  }
+
+  var jumbo = appData.jumboRolls.find(function(j) { return j.id === jumboId; });
+  if (!jumbo) return;
+
+  var availableWidth = jumbo.width - (2 * edgeWaste);
+  var strips = Math.floor(availableWidth / (customerWidth + bladeLoss));
+  var usableLength = jumbo.length - jumbo.usedLength;
+  var rollsPerStrip = Math.floor(usableLength / rollLength);
+  var totalRolls = strips * rollsPerStrip;
+  var totalLength = totalRolls * rollLength;
+  var wasteLength = usableLength - totalLength;
+  var wasteRate = usableLength > 0 ? ((wasteLength / usableLength) * 100).toFixed(1) : 0;
+
+  resultDiv.innerHTML = 
+    '<div class="grid grid-cols-2 gap-2">' +
+    '<div><span class="text-gray-500">可裁条数:</span> <strong class="text-cyan-700">' + strips + '</strong> 条</div>' +
+    '<div><span class="text-gray-500">每条约:</span> <strong class="text-cyan-700">' + rollsPerStrip + '</strong> 卷</div>' +
+    '<div><span class="text-gray-500">预估总产出:</span> <strong class="text-green-700 text-base">' + totalRolls + '</strong> 卷</div>' +
+    '<div><span class="text-gray-500">母卷剩余:</span> <strong>' + usableLength + '</strong> m</div>' +
+    '<div><span class="text-gray-500">预估损耗:</span> <strong class="' + (wasteRate > 5 ? 'text-red-600' : 'text-green-600') + '">' + wasteRate + '%</strong></div>' +
+    '<div><span class="text-gray-500">零头卷:</span> <strong>' + wasteLength + '</strong> m</div>' +
+    '</div>';
+}
+
+// ==================== RENDER MACHINE STATUS ====================
+function renderMachines() {
+  var container = document.getElementById('machineStatus');
+  var html = '';
+  appData.machines.forEach(function(m) {
+    var statusClass = m.status === 'running' ? 'machine-status-running' : m.status === 'idle' ? 'machine-status-idle' : 'machine-status-maintenance';
+    var statusText = m.status === 'running' ? '运行中' : m.status === 'idle' ? '待机' : '维护中';
+    html += '<div class="bg-white rounded-lg p-3 shadow-sm border-l-4 ' + (m.status === 'running' ? 'border-green-500' : m.status === 'idle' ? 'border-amber-500' : 'border-red-500') + '">' +
+      '<div class="flex items-center justify-between mb-1">' +
+      '<span class="text-sm font-bold text-gray-800">' + m.name + '</span>' +
+      '<span class="status-badge ' + statusClass + '">' + statusText + '</span>' +
+      '</div>' +
+      '<div class="text-xs text-gray-500">' + (m.operator || '无人操作') + '</div>' +
+      '</div>';
+  });
+  container.innerHTML = html;
+}
+
+// ==================== RENDER JUMBO LIST ====================
+function renderJumbo(filter) {
   filter = filter || 'all';
-  var list = document.getElementById('iqcList');
-  var items = appData.iqc;
+  var list = document.getElementById('jumboList');
+  var items = appData.jumboRolls;
   if (filter !== 'all') items = items.filter(function(i) { return i.status === filter; });
   if (items.length === 0) { list.innerHTML = '<div class="text-center py-8 text-gray-400 text-sm">暂无数据</div>'; return; }
+
   var statusMap = {
-    stored: { label: '已入库', color: 'bg-green-100 text-green-700', border: 'gate-pass' },
-    pending: { label: '待复检', color: 'bg-yellow-100 text-yellow-700', border: '' },
-    rejected: { label: '不合格', color: 'bg-red-100 text-red-700', border: 'gate-blocked' }
+    full: { label: '整卷', color: 'bg-green-100 text-green-700', border: 'gate-pass' },
+    partial: { label: '使用中', color: 'bg-blue-100 text-blue-700', border: '' },
+    remnant: { label: '零头卷', color: 'bg-purple-100 text-purple-700', border: '' }
   };
+
   var html = '';
   items.forEach(function(item) {
     var s = statusMap[item.status];
+    var remaining = item.length - item.usedLength;
+    var usagePercent = item.length > 0 ? Math.round((item.usedLength / item.length) * 100) : 0;
     html += '<div class="bg-white rounded-xl p-4 shadow-sm card-enter ' + s.border + '">' +
-      '<div class="flex items-start justify-between mb-2"><div><h4 class="text-sm font-bold text-gray-800">' + item.name + '</h4><p class="text-xs text-gray-400">' + item.id + '</p></div><span class="status-badge ' + s.color + '">' + s.label + '</span></div>' +
-      '<div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-2"><div>规格: ' + item.spec + '</div><div>数量: ' + item.qty + '</div><div>拉力: ' + item.tension + 'N</div><div>黏性: ' + item.sticky + '级</div></div>' +
-      '<div class="flex items-center justify-between pt-2 border-t border-gray-100"><span class="text-xs text-gray-400">' + (item.supplier || '-') + '</span><span class="text-xs text-gray-400">' + item.time + '</span></div>' +
-      (item.remark ? '<div class="mt-2 text-xs text-orange-600 bg-orange-50 rounded px-2 py-1"> ' + item.remark + '</div>' : '') +
+      '<div class="flex items-start justify-between mb-2">' +
+      '<div><h4 class="text-sm font-bold text-gray-800">' + item.material + ' 母卷</h4><p class="text-xs text-gray-400">' + item.id + (item.status === 'remnant' ? ' (来自 ' + item.remnantFrom + ')' : '') + '</p></div>' +
+      '<span class="status-badge ' + s.color + '">' + s.label + '</span>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-2">' +
+      '<div>宽度: ' + item.width + 'mm</div><div>厚度: ' + item.thickness + 'μm</div>' +
+      '<div>总长: ' + item.length + 'm</div><div>剩余: ' + remaining + 'm</div>' +
+      '<div>拉力: ' + item.tension + 'N</div><div>黏性: ' + item.sticky + '号</div>' +
+      '</div>' +
+      (item.status !== 'full' ? '<div class="mb-2"><div class="flex justify-between text-xs text-gray-500 mb-1"><span>使用进度</span><span>' + usagePercent + '%</span></div><div class="w-full bg-gray-200 rounded-full h-1.5"><div class="h-1.5 rounded-full bg-blue-500" style="width:' + usagePercent + '%"></div></div></div>' : '') +
+      '<div class="flex items-center justify-between pt-2 border-t border-gray-100">' +
+      '<span class="text-xs text-gray-400">' + item.supplier + '</span>' +
+      '<span class="text-xs text-gray-400">' + item.time + '</span>' +
+      '</div>' +
+      (item.remark ? '<div class="mt-2 text-xs text-orange-600 bg-orange-50 rounded px-2 py-1">📝 ' + item.remark + '</div>' : '') +
       '</div>';
   });
   list.innerHTML = html;
 }
 
-function filterIQC(filter, btn) {
-  document.querySelectorAll('.iqc-filter-btn').forEach(function(b) {
-    b.className = 'iqc-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border';
-  });
-  btn.className = 'iqc-filter-btn bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap';
-  renderIQC(filter);
+function filterJumbo(filter, btn) {
+  document.querySelectorAll('.jumbo-filter-btn').forEach(function(b) { b.className = 'jumbo-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border'; });
+  btn.className = 'jumbo-filter-btn bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap';
+  renderJumbo(filter);
 }
 
+// ==================== RENDER WORK ORDERS ====================
 function renderWO() {
   var list = document.getElementById('woList');
   var statusMap = {
-    producing: { label: '生产中', color: 'bg-blue-100 text-blue-700', icon: '🔧' },
-    pending_qc: { label: '待质检', color: 'bg-amber-100 text-amber-700', icon: '🔍' },
-    completed: { label: '已完工', color: 'bg-green-100 text-green-700', icon: '✅' }
+    draft: { label: '待排产', color: 'bg-gray-100 text-gray-700', icon: '📋' },
+    rewinding: { label: '复卷中', color: 'bg-cyan-100 text-cyan-700', icon: '🔄' },
+    rewound: { label: '待裁切', color: 'bg-blue-100 text-blue-700', icon: '⏳' },
+    slitting: { label: '裁切中', color: 'bg-green-100 text-green-700', icon: '️' },
+    slit_done: { label: '已完工', color: 'bg-purple-100 text-purple-700', icon: '✅' }
   };
-  var producing = 0, pendingQc = 0, completed = 0;
+
+  var draft = 0, rewind = 0, slit = 0, done = 0;
   appData.workOrders.forEach(function(w) {
-    if (w.status === 'producing') producing++;
-    else if (w.status === 'pending_qc') pendingQc++;
-    else if (w.status === 'completed') completed++;
+    if (w.status === 'draft') draft++;
+    else if (w.status === 'rewinding') rewind++;
+    else if (w.status === 'slitting') slit++;
+    else if (w.status === 'slit_done') done++;
   });
-  document.getElementById('wo-producing').textContent = producing;
-  document.getElementById('wo-pending-qc').textContent = pendingQc;
-  document.getElementById('wo-completed').textContent = completed;
+  document.getElementById('wo-draft').textContent = draft;
+  document.getElementById('wo-rewind').textContent = rewind;
+  document.getElementById('wo-slit').textContent = slit;
+  document.getElementById('wo-done').textContent = done;
 
   var html = '';
   appData.workOrders.forEach(function(wo) {
     var s = statusMap[wo.status];
-    var progress = wo.planQty > 0 ? Math.round((wo.actualQty / wo.planQty) * 100) : 0;
+    var jumbo = appData.jumboRolls.find(function(j) { return j.id === wo.jumboId; });
+    var progress = wo.calcRolls > 0 ? Math.round((wo.actualOutput / wo.calcRolls) * 100) : 0;
+    
     html += '<div class="bg-white rounded-xl p-4 shadow-sm card-enter">' +
-      '<div class="flex items-start justify-between mb-2"><div><h4 class="text-sm font-bold text-gray-800">' + wo.product + '</h4><p class="text-xs text-gray-400">' + wo.id + '</p></div><span class="status-badge ' + s.color + '">' + s.icon + ' ' + s.label + '</span></div>' +
-      '<div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-2"><div>原材料: ' + wo.material + '</div><div>订单: ' + (wo.order || '-') + '</div><div>计划: ' + wo.planQty + '</div><div>完成: ' + wo.actualQty + '</div></div>';
-    if (wo.status !== 'completed') {
-      html += '<div class="mb-2"><div class="flex justify-between text-xs text-gray-500 mb-1"><span>生产进度</span><span>' + progress + '%</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="h-2 rounded-full transition-all ' + (wo.status === 'producing' ? 'bg-blue-500' : 'bg-amber-500') + '" style="width:' + progress + '%"></div></div></div>';
-    } else {
-      html += '<div class="text-xs text-green-600 bg-green-50 rounded px-2 py-1 mb-2">损耗: ' + wo.waste + ' | 良率: ' + (wo.planQty > 0 ? Math.round(((wo.planQty - wo.waste) / wo.planQty) * 100) : 0) + '%</div>';
-    }
-    html += '<div class="flex items-center justify-between pt-2 border-t border-gray-100"><span class="text-xs text-gray-400">规格: ' + wo.spec + '</span><span class="text-xs text-gray-400">' + wo.time + '</span></div>';
-    if (wo.status === 'producing') {
-      html += '<div class="mt-2 flex gap-2"><button onclick="completeWO(\'' + wo.id + '\')" class="flex-1 bg-amber-500 text-white py-1.5 rounded-lg text-xs font-medium active:bg-amber-600 transition">完成生产</button></div>';
-    }
+      '<div class="flex items-start justify-between mb-2">' +
+      '<div><h4 class="text-sm font-bold text-gray-800">' + wo.customerWidth + 'mm × ' + wo.rollLength + 'm</h4><p class="text-xs text-gray-400">' + wo.id + ' | 订单: ' + (wo.order || '-') + '</p></div>' +
+      '<span class="status-badge ' + s.color + '">' + s.icon + ' ' + s.label + '</span>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-2">' +
+      '<div>母卷: ' + wo.jumboId + '</div><div>机台: ' + (wo.machine || '未分配') + '</div>' +
+      '<div>预估: ' + wo.calcRolls + '卷</div><div>实际: ' + wo.actualOutput + '卷</div>' +
+      '</div>';
+
+    // Process steps
+    html += '<div class="mb-2 process-step">';
+    var rewindDone = wo.processes.some(function(p) { return p.step === 'rewind'; });
+    var slitDone = wo.processes.some(function(p) { return p.step === 'slit'; });
+    html += '<div class="process-dot ' + (rewindDone ? 'done' : wo.status === 'rewinding' ? 'current' : '') + '"></div>' +
+      '<div class="text-xs"><span class="font-medium">复卷</span> ' + (rewindDone ? '✅ 已完成' : wo.status === 'rewinding' ? '🔄 进行中' : '⏳ 待开始') + '</div>';
+    html += '</div><div class="mb-2 process-step">';
+    html += '<div class="process-dot ' + (slitDone ? 'done' : wo.status === 'slitting' ? 'current' : '') + '"></div>' +
+      '<div class="text-xs"><span class="font-medium">裁切</span> ' + (slitDone ? '✅ 已完成' : wo.status === 'slitting' ? '✂️ 进行中' : '⏳ 待开始') + '</div>';
     html += '</div>';
+
+    if (wo.status !== 'slit_done') {
+      html += '<div class="mb-2"><div class="flex justify-between text-xs text-gray-500 mb-1"><span>生产进度</span><span>' + progress + '%</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="h-2 rounded-full transition-all bg-blue-500" style="width:' + progress + '%"></div></div></div>';
+    } else {
+      html += '<div class="text-xs text-green-600 bg-green-50 rounded px-2 py-1 mb-2">损耗率: ' + wo.lossRate + '% | 产出: ' + wo.actualOutput + '卷</div>';
+    }
+
+    // Action buttons
+    html += '<div class="mt-2 flex gap-2">';
+    if (wo.status === 'draft') {
+      html += '<button onclick="startProcess(\'' + wo.id + '\', \'rewind\')" class="flex-1 bg-cyan-500 text-white py-1.5 rounded-lg text-xs font-medium active:bg-cyan-600 transition">开始复卷</button>';
+    } else if (wo.status === 'rewinding') {
+      html += '<button onclick="completeProcess(\'' + wo.id + '\', \'rewind\')" class="flex-1 bg-cyan-500 text-white py-1.5 rounded-lg text-xs font-medium active:bg-cyan-600 transition">完成复卷</button>';
+    } else if (wo.status === 'rewound') {
+      html += '<button onclick="startProcess(\'' + wo.id + '\', \'slit\')" class="flex-1 bg-green-500 text-white py-1.5 rounded-lg text-xs font-medium active:bg-green-600 transition">开始裁切</button>';
+    } else if (wo.status === 'slitting') {
+      html += '<button onclick="completeProcess(\'' + wo.id + '\', \'slit\')" class="flex-1 bg-green-500 text-white py-1.5 rounded-lg text-xs font-medium active:bg-green-600 transition">完成裁切</button>';
+    }
+    html += '</div>' +
+      '<div class="flex items-center justify-between pt-2 border-t border-gray-100 mt-2">' +
+      '<span class="text-xs text-gray-400">张力: ' + wo.tensionSetting + 'N</span>' +
+      '<span class="text-xs text-gray-400">' + wo.time + '</span>' +
+      '</div></div>';
   });
   list.innerHTML = html;
 }
 
-function completeWO(woId) {
+function startProcess(woId, step) {
   var wo = appData.workOrders.find(function(w) { return w.id === woId; });
-  if (wo) {
-    wo.status = 'pending_qc';
-    wo.actualQty = wo.planQty - wo.waste;
-    renderAll();
-    showToast('工单 ' + woId + ' 已完成生产，转入待质检', 'success');
+  if (!wo) return;
+  
+  // Check if jumbo is available
+  var jumbo = appData.jumboRolls.find(function(j) { return j.id === wo.jumboId; });
+  if (!jumbo) { showGateBlock('母卷 ' + wo.jumboId + ' 不存在！'); return; }
+
+  // Check IQC for jumbo
+  var iqcPassed = appData.qc.some(function(q) { return q.target === wo.jumboId && q.result === 'pass' && q.type === 'IQC'; });
+  if (!iqcPassed && step === 'rewind') {
+    showGateBlock('母卷 ' + wo.jumboId + ' 未通过进料检验(IQC)，禁止开始生产！请先完成IQC检测。');
+    return;
   }
+
+  document.getElementById('proc-wo-id').value = woId;
+  document.getElementById('proc-step').value = step;
+  document.getElementById('processTitle').textContent = step === 'rewind' ? '复卷工序登记' : '裁切工序登记';
+  
+  // Show/hide relevant fields
+  document.getElementById('rewindFields').classList.toggle('hidden', step !== 'rewind');
+  document.getElementById('slitFields').classList.toggle('hidden', step !== 'slit');
+
+  // Populate machine select
+  var machineSel = document.getElementById('proc-machine');
+  machineSel.innerHTML = '<option value="">选择机台</option>';
+  appData.machines.filter(function(m) { return m.type === step; }).forEach(function(m) {
+    machineSel.innerHTML += '<option value="' + m.id + '">' + m.name + ' (' + (m.status === 'running' ? '运行中' : m.status === 'idle' ? '待机' : '维护中') + ')</option>';
+  });
+
+  openModal('processModal');
 }
 
+function completeProcess(woId, step) {
+  var wo = appData.workOrders.find(function(w) { return w.id === woId; });
+  if (!wo) return;
+
+  document.getElementById('proc-wo-id').value = woId;
+  document.getElementById('proc-step').value = step;
+  document.getElementById('processTitle').textContent = step === 'rewind' ? '复卷工序登记' : '裁切工序登记';
+  document.getElementById('rewindFields').classList.toggle('hidden', step !== 'rewind');
+  document.getElementById('slitFields').classList.toggle('hidden', step !== 'slit');
+
+  var machineSel = document.getElementById('proc-machine');
+  machineSel.innerHTML = '<option value="">选择机台</option>';
+  appData.machines.filter(function(m) { return m.type === step; }).forEach(function(m) {
+    machineSel.innerHTML += '<option value="' + m.id + '">' + m.name + '</option>';
+  });
+
+  openModal('processModal');
+}
+
+function submitProcess(e) {
+  e.preventDefault();
+  var woId = document.getElementById('proc-wo-id').value;
+  var step = document.getElementById('proc-step').value;
+  var operator = document.getElementById('proc-operator').value;
+  var machine = document.getElementById('proc-machine').value;
+  var remark = document.getElementById('proc-remark').value;
+
+  if (!operator || !machine) { showToast('请填写完整信息', 'error'); return; }
+
+  var wo = appData.workOrders.find(function(w) { return w.id === woId; });
+  if (!wo) return;
+
+  var now = new Date();
+  var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  var processRecord = { step: step, operator: operator, machine: machine, time: timeStr, remark: remark };
+
+  if (step === 'rewind') {
+    processRecord.tension = parseFloat(document.getElementById('proc-rewind-tension').value) || 0;
+    processRecord.length = parseInt(document.getElementById('proc-rewind-length').value) || 0;
+    processRecord.speed = parseInt(document.getElementById('proc-rewind-speed').value) || 0;
+    wo.status = 'rewound';
+  } else if (step === 'slit') {
+    processRecord.width = parseFloat(document.getElementById('proc-slit-width').value) || 0;
+    processRecord.knives = parseInt(document.getElementById('proc-slit-knives').value) || 0;
+    processRecord.speed = parseInt(document.getElementById('proc-slit-speed').value) || 0;
+    processRecord.output = parseInt(document.getElementById('proc-slit-output').value) || 0;
+    processRecord.edge = parseFloat(document.getElementById('proc-slit-edge').value) || 0;
+    processRecord.loss = parseFloat(document.getElementById('proc-slit-loss').value) || 0;
+    wo.actualOutput = processRecord.output;
+    wo.lossRate = processRecord.loss;
+    wo.status = 'slit_done';
+
+    // Update jumbo roll usage
+    var jumbo = appData.jumboRolls.find(function(j) { return j.id === wo.jumboId; });
+    if (jumbo) {
+      var usedLength = wo.calcRolls > 0 ? Math.round((processRecord.output / wo.calcRolls) * (jumbo.length - jumbo.usedLength)) : 0;
+      jumbo.usedLength += usedLength;
+      var remaining = jumbo.length - jumbo.usedLength;
+      if (remaining < jumbo.length * 0.3 && remaining > 100) {
+        // Create remnant roll
+        var remnantId = 'RR-' + jumbo.id.replace('JR-', '');
+        var existingRemnant = appData.jumboRolls.find(function(r) { return r.id === remnantId; });
+        if (!existingRemnant) {
+          appData.jumboRolls.push({
+            id: remnantId, width: jumbo.width, length: remaining, material: jumbo.material,
+            thickness: jumbo.thickness, supplier: jumbo.supplier, tension: jumbo.tension,
+            sticky: jumbo.sticky, hold: jumbo.hold, peel: jumbo.peel,
+            status: 'remnant', usedLength: 0, remnantFrom: jumbo.id, time: timeStr
+          });
+          showToast('已自动生成零头卷 ' + remnantId, 'info');
+        }
+      }
+      if (jumbo.usedLength >= jumbo.length) jumbo.status = 'partial';
+    }
+
+    // Check loss rate threshold
+    if (processRecord.loss > 5) {
+      showToast('⚠️ 裁切损耗 ' + processRecord.loss + '% 超过阈值 5%！', 'warning');
+    }
+  }
+
+  wo.processes.push(processRecord);
+  closeModal('processModal');
+  document.getElementById('processForm').reset();
+  renderAll();
+  showToast(step === 'rewind' ? '复卷工序已完成' : '裁切工序已完成，产出 ' + processRecord.output + ' 卷', 'success');
+}
+
+// ==================== RENDER QC ====================
 function renderQC(filter) {
   filter = filter || 'all';
   var list = document.getElementById('qcList');
   var items = appData.qc;
   if (filter !== 'all') items = items.filter(function(i) { return i.result === filter; });
   if (items.length === 0) { list.innerHTML = '<div class="text-center py-8 text-gray-400 text-sm">暂无数据</div>'; return; }
+
   var resultMap = {
     pass: { label: '合格', color: 'bg-green-100 text-green-700', border: 'gate-pass' },
     fail: { label: '不合格', color: 'bg-red-100 text-red-700', border: 'gate-blocked' },
     pending: { label: '待检', color: 'bg-amber-100 text-amber-700', border: '' }
   };
+
   var html = '';
   items.forEach(function(item) {
     var r = resultMap[item.result];
-    var wo = appData.workOrders.find(function(w) { return w.id === item.woId; });
     html += '<div class="bg-white rounded-xl p-4 shadow-sm card-enter ' + r.border + '">' +
-      '<div class="flex items-start justify-between mb-2"><div><h4 class="text-sm font-bold text-gray-800">' + item.type + ' - ' + (wo ? wo.product : item.woId) + '</h4><p class="text-xs text-gray-400">' + item.id + ' | 工单: ' + item.woId + '</p></div><span class="status-badge ' + r.color + '">' + r.label + '</span></div>' +
-      '<div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-2"><div>抽检: ' + item.sampleQty + '</div><div>合格: ' + item.passQty + '</div><div>外观: ' + (item.appearance === 'pass' ? '✅' : item.appearance === 'fail' ? '❌' : '-') + '</div><div>黏着: ' + (item.adhesion === 'pass' ? '✅' : item.adhesion === 'fail' ? '❌' : '-') + '</div></div>';
+      '<div class="flex items-start justify-between mb-2">' +
+      '<div><h4 class="text-sm font-bold text-gray-800">' + item.type + '</h4><p class="text-xs text-gray-400">' + item.id + ' | 对象: ' + item.target + '</p></div>' +
+      '<span class="status-badge ' + r.color + '">' + r.label + '</span>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-2">' +
+      '<div>抽检: ' + item.sample + '</div><div>合格: ' + item.pass + '</div>' +
+      '<div>宽度偏差: ' + item.widthDev + 'mm</div><div>长度偏差: ' + item.lengthDev + 'm</div>' +
+      '<div>外观: ' + (item.appearance === 'pass' ? '✅' : item.appearance === 'fail' ? '❌' : '-') + '</div>' +
+      '<div>端面: ' + (item.endface === 'pass' ? '✅' : item.endface === 'fail' ? '' : '-') + '</div>' +
+      '</div>';
     if (item.result !== 'pending') {
-      html += '<div class="text-xs ' + (item.result === 'pass' ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50') + ' rounded px-2 py-1 mb-2">合格率: ' + (item.sampleQty > 0 ? Math.round((item.passQty / item.sampleQty) * 100) : 0) + '%' + (item.result === 'fail' ? ' | ⛔ 系统已锁定该批次，禁止出货' : '') + '</div>';
+      html += '<div class="text-xs ' + (item.result === 'pass' ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50') + ' rounded px-2 py-1 mb-2">合格率: ' + (item.sample > 0 ? Math.round((item.pass / item.sample) * 100) : 0) + '%' + (item.result === 'fail' ? ' | ⛔ 系统已锁定该批次' : '') + '</div>';
     } else {
       html += '<div class="mt-2"><button onclick="quickQC(\'' + item.id + '\')" class="w-full bg-purple-500 text-white py-1.5 rounded-lg text-xs font-medium active:bg-purple-600 transition">录入检测数据</button></div>';
     }
@@ -781,9 +1156,7 @@ function renderQC(filter) {
 }
 
 function filterQC(filter, btn) {
-  document.querySelectorAll('.qc-filter-btn').forEach(function(b) {
-    b.className = 'qc-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border';
-  });
+  document.querySelectorAll('.qc-filter-btn').forEach(function(b) { b.className = 'qc-filter-btn bg-white text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border'; });
   btn.className = 'qc-filter-btn bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap';
   renderQC(filter);
 }
@@ -791,176 +1164,239 @@ function filterQC(filter, btn) {
 function quickQC(qcId) {
   var qc = appData.qc.find(function(q) { return q.id === qcId; });
   if (!qc) return;
-  var passQty = prompt('工单 ' + qc.woId + ' 抽检数量: ' + qc.sampleQty + '\n请输入合格数量:');
+  var passQty = prompt('对象 ' + qc.target + ' 抽检数量: ' + qc.sample + '\n请输入合格数量:');
   if (passQty === null) return;
   var pq = parseInt(passQty);
-  if (isNaN(pq) || pq < 0 || pq > qc.sampleQty) { showToast('请输入有效的合格数量', 'error'); return; }
-  qc.passQty = pq;
-  qc.result = pq >= qc.sampleQty * 0.95 ? 'pass' : 'fail';
+  if (isNaN(pq) || pq < 0 || pq > qc.sample) { showToast('请输入有效的合格数量', 'error'); return; }
+  qc.pass = pq;
+  qc.result = pq >= qc.sample * 0.95 ? 'pass' : 'fail';
   qc.appearance = qc.result === 'pass' ? 'pass' : 'fail';
-  qc.adhesion = qc.result === 'pass' ? 'pass' : 'fail';
-  if (qc.result === 'pass') {
-    var wo = appData.workOrders.find(function(w) { return w.id === qc.woId; });
-    if (wo) wo.status = 'completed';
-  }
+  qc.endface = qc.result === 'pass' ? 'pass' : 'fail';
   renderAll();
   showToast(qc.result === 'pass' ? '检验合格，批次已解锁' : '检验不合格，批次已锁定', qc.result === 'pass' ? 'success' : 'error');
 }
 
+// ==================== RENDER SHIPPING ====================
 function renderShipping() {
   var list = document.getElementById('shipList');
   if (appData.shipping.length === 0) { list.innerHTML = '<div class="text-center py-8 text-gray-400 text-sm">暂无出货记录</div>'; return; }
   var html = '';
   appData.shipping.forEach(function(item) {
-    var wo = appData.workOrders.find(function(w) { return w.id === item.product; });
+    var wo = appData.workOrders.find(function(w) { return w.id === item.woId; });
     html += '<div class="bg-white rounded-xl p-4 shadow-sm card-enter gate-pass">' +
       '<div class="flex items-start justify-between mb-2"><div><h4 class="text-sm font-bold text-gray-800">' + item.customer + '</h4><p class="text-xs text-gray-400">' + item.id + '</p></div><span class="status-badge bg-green-100 text-green-700">已出货</span></div>' +
-      '<div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-2"><div>产品: ' + (wo ? wo.product : item.product) + '</div><div>数量: ' + item.qty + '</div><div>物流: ' + item.logistics + '</div><div>时间: ' + item.time + '</div></div>' +
+      '<div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-2"><div>产品: ' + (wo ? wo.customerWidth + 'mm×' + wo.rollLength + 'm' : item.woId) + '</div><div>数量: ' + item.qty + '卷</div><div>箱数: ' + item.boxes + '箱</div><div>物流: ' + item.logistics + '</div></div>' +
       '<div class="pt-2 border-t border-gray-100"><div class="flex items-center gap-1 text-xs text-green-600"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span>库存已扣减，销售闭环完成</span></div></div></div>';
   });
   list.innerHTML = html;
 }
 
-function openIQCForm() { openModal('iqcModal'); }
-function openWOForm() {
-  var sel = document.getElementById('wo-material');
-  sel.innerHTML = '<option value="">选择已入库原材料</option>';
-  appData.iqc.filter(function(i) { return i.status === 'stored'; }).forEach(function(i) {
-    sel.innerHTML += '<option value="' + i.id + '">' + i.id + ' - ' + i.name + ' (' + i.spec + ')</option>';
-  });
-  openModal('woModal');
-}
-function openQCForm() {
-  var sel = document.getElementById('qc-wo');
-  sel.innerHTML = '<option value="">选择待检工单</option>';
-  appData.workOrders.filter(function(w) { return w.status === 'pending_qc'; }).forEach(function(w) {
-    sel.innerHTML += '<option value="' + w.id + '">' + w.id + ' - ' + w.product + '</option>';
-  });
-  openModal('qcModal');
-}
-function openShipForm() {
-  var sel = document.getElementById('ship-product');
-  sel.innerHTML = '<option value="">选择已通过质检的成品</option>';
-  var passedQC = appData.qc.filter(function(q) { return q.result === 'pass'; }).map(function(q) { return q.woId; });
-  appData.workOrders.filter(function(w) { return w.status === 'completed' && passedQC.indexOf(w.id) !== -1; }).forEach(function(w) {
-    sel.innerHTML += '<option value="' + w.id + '">' + w.id + ' - ' + w.product + ' (库存: ' + w.actualQty + ')</option>';
-  });
-  var noQCCompleted = appData.workOrders.filter(function(w) { return w.status === 'completed' && passedQC.indexOf(w.id) === -1; });
-  if (noQCCompleted.length > 0) {
-    sel.innerHTML += '<optgroup label="⛔ 未通过质检 (不可选)">';
-    noQCCompleted.forEach(function(w) {
-      sel.innerHTML += '<option value="' + w.id + '" disabled>' + w.id + ' - ' + w.product + ' (无质检记录)</option>';
-    });
-    sel.innerHTML += '</optgroup>';
-  }
-  openModal('shipModal');
-}
+// ==================== FORM SUBMISSIONS ====================
+function openJumboForm() { openModal('jumboModal'); }
 
-function submitIQC(e) {
+function submitJumbo(e) {
   e.preventDefault();
-  var batch = document.getElementById('iqc-batch').value;
-  var name = document.getElementById('iqc-name').value;
-  var spec = document.getElementById('iqc-spec').value;
-  var qty = parseInt(document.getElementById('iqc-qty').value);
-  var supplier = document.getElementById('iqc-supplier').value;
-  var tension = parseFloat(document.getElementById('iqc-tension').value);
-  var sticky = parseInt(document.getElementById('iqc-sticky').value);
-  var thickness = document.getElementById('iqc-thickness').value ? parseFloat(document.getElementById('iqc-thickness').value) : null;
-  var remark = document.getElementById('iqc-remark').value;
-  if (tension < 15) { showGateBlock('进料批号 ' + batch + ' 拉力值 ' + tension + 'N 低于标准值 15N，系统拒绝入库！请安排复检或退货处理。'); return; }
-  if (sticky < 3) { showGateBlock('进料批号 ' + batch + ' 黏性测试 ' + sticky + '级 低于合格标准 3级，系统拒绝入库！请联系供应商处理。'); return; }
+  var id = document.getElementById('jumbo-id').value;
+  var width = parseInt(document.getElementById('jumbo-width').value);
+  var length = parseInt(document.getElementById('jumbo-length').value);
+  var material = document.getElementById('jumbo-material').value;
+  var thickness = parseFloat(document.getElementById('jumbo-thickness').value) || 0;
+  var supplier = document.getElementById('jumbo-supplier').value;
+  var tension = parseFloat(document.getElementById('jumbo-tension').value);
+  var sticky = parseInt(document.getElementById('jumbo-sticky').value);
+  var hold = parseFloat(document.getElementById('jumbo-hold').value) || 0;
+  var peel = parseFloat(document.getElementById('jumbo-peel').value) || 0;
+
+  if (tension < 15) { showGateBlock('母卷 ' + id + ' 拉力值 ' + tension + 'N 低于标准值 15N，系统拒绝入库！'); return; }
+  if (sticky < 3) { showGateBlock('母卷 ' + id + ' 初黏性 ' + sticky + '号 低于合格标准 3号，系统拒绝入库！'); return; }
+
   var now = new Date();
   var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-  appData.iqc.unshift({ id: batch, name: name, spec: spec, qty: qty, supplier: supplier, tension: tension, sticky: sticky, thickness: thickness, status: 'stored', time: timeStr, remark: remark });
-  closeModal('iqcModal');
-  document.getElementById('iqcForm').reset();
+
+  appData.jumboRolls.unshift({
+    id: id, width: width, length: length, material: material, thickness: thickness,
+    supplier: supplier, tension: tension, sticky: sticky, hold: hold, peel: peel,
+    status: 'full', usedLength: 0, time: timeStr
+  });
+
+  // Auto create IQC record
+  appData.qc.unshift({
+    id: 'QC-' + String(appData.qc.length + 1).padStart(3, '0'),
+    type: 'IQC', target: id, sample: 1, pass: 1, widthDev: 0, lengthDev: 0,
+    appearance: 'pass', endface: 'pass', result: 'pass', time: timeStr
+  });
+
+  closeModal('jumboModal');
+  document.getElementById('jumboForm').reset();
   renderAll();
-  showToast('原材料 ' + batch + ' 已成功入库', 'success');
+  showToast('母卷 ' + id + ' 已成功入库', 'success');
+}
+
+function openWOForm() {
+  var sel = document.getElementById('wo-jumbo');
+  sel.innerHTML = '<option value="">选择母卷（含零头卷）</option>';
+  appData.jumboRolls.filter(function(j) { return j.status !== 'remnant' || (j.length - j.usedLength) > 100; }).forEach(function(j) {
+    var remaining = j.length - j.usedLength;
+    var label = j.status === 'remnant' ? '🔄 零头卷' : (j.status === 'full' ? ' 整卷' : '🔵 使用中');
+    sel.innerHTML += '<option value="' + j.id + '">' + label + ' ' + j.id + ' (' + j.material + ' ' + j.width + 'mm 剩余' + remaining + 'm)</option>';
+  });
+
+  var machineSel = document.getElementById('wo-machine');
+  machineSel.innerHTML = '<option value="">自动分配</option>';
+  appData.machines.forEach(function(m) {
+    machineSel.innerHTML += '<option value="' + m.id + '">' + m.name + ' (' + (m.status === 'running' ? '运行中' : m.status === 'idle' ? '待机' : '维护中') + ')</option>';
+  });
+
+  openModal('woModal');
 }
 
 function submitWO(e) {
   e.preventDefault();
-  var product = document.getElementById('wo-product').value;
-  var material = document.getElementById('wo-material').value;
-  var planQty = parseInt(document.getElementById('wo-plan-qty').value);
-  var spec = document.getElementById('wo-spec').value;
+  var jumboId = document.getElementById('wo-jumbo').value;
+  var customerWidth = parseFloat(document.getElementById('wo-customer-width').value);
+  var rollLength = parseFloat(document.getElementById('wo-roll-length').value);
+  var bladeLoss = parseFloat(document.getElementById('wo-blade-loss').value) || 2;
+  var edgeWaste = parseFloat(document.getElementById('wo-edge-waste').value) || 10;
   var order = document.getElementById('wo-order').value;
-  var waste = parseInt(document.getElementById('wo-waste').value) || 0;
-  var mat = appData.iqc.find(function(i) { return i.id === material; });
-  if (!mat || mat.status !== 'stored') { showGateBlock('原材料批号 ' + material + ' 未入库或状态异常，无法创建工单！请先完成进料的IQC检测。'); return; }
+  var tensionSetting = parseFloat(document.getElementById('wo-tension-setting').value) || 15;
+  var machine = document.getElementById('wo-machine').value;
+
+  var jumbo = appData.jumboRolls.find(function(j) { return j.id === jumboId; });
+  if (!jumbo) { showGateBlock('母卷不存在！'); return; }
+
+  var availableWidth = jumbo.width - (2 * edgeWaste);
+  var strips = Math.floor(availableWidth / (customerWidth + bladeLoss));
+  var usableLength = jumbo.length - jumbo.usedLength;
+  var rollsPerStrip = Math.floor(usableLength / rollLength);
+  var totalRolls = strips * rollsPerStrip;
+
+  if (totalRolls <= 0) { showGateBlock('母卷剩余长度不足，无法产出任何成品卷！'); return; }
+
   var now = new Date();
   var dateStr = '' + now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0');
   var id = 'WO-' + dateStr + '-' + String(appData.workOrders.length + 1).padStart(3, '0');
   var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-  appData.workOrders.unshift({ id: id, product: product, material: material, planQty: planQty, actualQty: 0, waste: 0, spec: spec, order: order, status: 'producing', time: timeStr });
+
+  appData.workOrders.unshift({
+    id: id, jumboId: jumboId, customerWidth: customerWidth, rollLength: rollLength,
+    bladeLoss: bladeLoss, edgeWaste: edgeWaste, order: order, status: 'draft',
+    tensionSetting: tensionSetting, machine: machine,
+    calcStrips: strips, calcRolls: totalRolls, actualOutput: 0, lossRate: 0,
+    time: timeStr, processes: []
+  });
+
   closeModal('woModal');
   document.getElementById('woForm').reset();
   renderAll();
-  showToast('工单 ' + id + ' 已创建，开始生产', 'success');
+  showToast('工单 ' + id + ' 已创建，预估产出 ' + totalRolls + ' 卷', 'success');
+}
+
+function openQCForm() {
+  var sel = document.getElementById('qc-target');
+  sel.innerHTML = '<option value="">选择对象</option>';
+  appData.jumboRolls.forEach(function(j) {
+    sel.innerHTML += '<option value="' + j.id + '">母卷: ' + j.id + ' (' + j.material + ')</option>';
+  });
+  appData.workOrders.filter(function(w) { return w.status !== 'draft'; }).forEach(function(w) {
+    sel.innerHTML += '<option value="' + w.id + '">工单: ' + w.id + ' (' + w.customerWidth + 'mm)</option>';
+  });
+  openModal('qcModal');
 }
 
 function submitQC(e) {
   e.preventDefault();
   var type = document.getElementById('qc-type').value;
-  var woId = document.getElementById('qc-wo').value;
-  var sampleQty = parseInt(document.getElementById('qc-sample-qty').value);
-  var passQty = parseInt(document.getElementById('qc-pass-qty').value);
+  var target = document.getElementById('qc-target').value;
+  var sample = parseInt(document.getElementById('qc-sample').value);
+  var pass = parseInt(document.getElementById('qc-pass').value);
+  var widthDev = parseFloat(document.getElementById('qc-width-dev').value) || 0;
+  var lengthDev = parseFloat(document.getElementById('qc-length-dev').value) || 0;
   var appearance = document.getElementById('qc-appearance').value;
-  var dimension = document.getElementById('qc-dimension').value ? parseFloat(document.getElementById('qc-dimension').value) : 0;
-  var adhesion = document.getElementById('qc-adhesion').value;
-  var remark = document.getElementById('qc-remark').value;
+  var endface = document.getElementById('qc-endface').value;
+  var remark = document.getElementById('qc-remark') ? document.getElementById('qc-remark').value : '';
+
   var result = 'pass';
-  if (appearance === 'fail' || adhesion === 'fail' || Math.abs(dimension) > 0.5 || passQty < sampleQty * 0.95) { result = 'fail'; }
+  if (appearance === 'fail' || endface === 'fail' || Math.abs(widthDev) > 0.5 || Math.abs(lengthDev) > 1 || pass < sample * 0.95) {
+    result = 'fail';
+  }
+
   var now = new Date();
   var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
   var id = 'QC-' + String(appData.qc.length + 1).padStart(3, '0');
-  appData.qc.unshift({ id: id, type: type, woId: woId, sampleQty: sampleQty, passQty: passQty, appearance: appearance, dimension: dimension, adhesion: adhesion, result: result, time: timeStr, remark: remark });
-  if (result === 'pass') {
-    var wo = appData.workOrders.find(function(w) { return w.id === woId; });
-    if (wo) wo.status = 'completed';
-  }
+
+  appData.qc.unshift({
+    id: id, type: type, target: target, sample: sample, pass: pass,
+    widthDev: widthDev, lengthDev: lengthDev, appearance: appearance, endface: endface,
+    result: result, time: timeStr, remark: remark
+  });
+
   closeModal('qcModal');
   document.getElementById('qcForm').reset();
   renderAll();
-  if (result === 'pass') { showToast('检验合格！工单 ' + woId + ' 已解锁，可安排出货', 'success'); }
-  else { showToast('检验不合格！工单 ' + woId + ' 批次已锁定，禁止出货', 'error'); }
+  if (result === 'pass') { showToast('检验合格！', 'success'); } else { showToast('检验不合格！批次已锁定', 'error'); }
+}
+
+function openShipForm() {
+  var sel = document.getElementById('ship-product');
+  sel.innerHTML = '<option value="">选择已通过质检的成品</option>';
+  var passedQC = appData.qc.filter(function(q) { return q.result === 'pass' && q.type === 'OQC'; }).map(function(q) { return q.target; });
+  appData.workOrders.filter(function(w) { return w.status === 'slit_done' && passedQC.indexOf(w.id) !== -1; }).forEach(function(w) {
+    sel.innerHTML += '<option value="' + w.id + '">' + w.id + ' - ' + w.customerWidth + 'mm×' + w.rollLength + 'm (库存: ' + w.actualOutput + '卷)</option>';
+  });
+  var noQC = appData.workOrders.filter(function(w) { return w.status === 'slit_done' && passedQC.indexOf(w.id) === -1; });
+  if (noQC.length > 0) {
+    sel.innerHTML += '<optgroup label="⛔ 未通过OQC (不可选)">';
+    noQC.forEach(function(w) { sel.innerHTML += '<option value="' + w.id + '" disabled>' + w.id + ' (无OQC记录)</option>'; });
+    sel.innerHTML += '</optgroup>';
+  }
+  openModal('shipModal');
 }
 
 function submitShip(e) {
   e.preventDefault();
   var customer = document.getElementById('ship-customer').value;
-  var productId = document.getElementById('ship-product').value;
+  var woId = document.getElementById('ship-product').value;
   var qty = parseInt(document.getElementById('ship-qty').value);
+  var boxes = parseInt(document.getElementById('ship-boxes').value) || Math.ceil(qty / 20);
   var logistics = document.getElementById('ship-logistics').value;
-  var remark = document.getElementById('ship-remark').value;
-  var passedQC = appData.qc.filter(function(q) { return q.result === 'pass'; }).map(function(q) { return q.woId; });
-  if (passedQC.indexOf(productId) === -1) { showGateBlock('成品批次 ' + productId + ' 未通过品质检验，系统禁止出货！请先完成IPQC/OQC检验。'); return; }
-  var wo = appData.workOrders.find(function(w) { return w.id === productId; });
-  if (wo && qty > wo.actualQty) { showGateBlock('出货数量 ' + qty + ' 超过可用库存 ' + wo.actualQty + '，请调整出货数量！'); return; }
+
+  var passedQC = appData.qc.filter(function(q) { return q.result === 'pass' && q.type === 'OQC'; }).map(function(q) { return q.target; });
+  if (passedQC.indexOf(woId) === -1) { showGateBlock('成品批次 ' + woId + ' 未通过OQC检验，系统禁止出货！'); return; }
+
+  var wo = appData.workOrders.find(function(w) { return w.id === woId; });
+  if (wo && qty > wo.actualOutput) { showGateBlock('出货数量 ' + qty + ' 超过可用库存 ' + wo.actualOutput + '！'); return; }
+
   var now = new Date();
   var dateStr = '' + now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0');
   var id = 'SH-' + dateStr + '-' + String(appData.shipping.length + 1).padStart(3, '0');
   var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-  appData.shipping.unshift({ id: id, customer: customer, product: productId, qty: qty, logistics: logistics, time: timeStr, status: 'shipped', remark: remark });
-  if (wo) wo.actualQty -= qty;
+
+  appData.shipping.unshift({ id: id, customer: customer, woId: woId, qty: qty, boxes: boxes, logistics: logistics, time: timeStr });
+  if (wo) wo.actualOutput -= qty;
+
   closeModal('shipModal');
   document.getElementById('shipForm').reset();
   renderAll();
-  showToast('出货单 ' + id + ' 已确认，库存已扣减', 'success');
+  showToast('出货单 ' + id + ' 已确认，共 ' + boxes + ' 箱', 'success');
 }
 
+// ==================== UPDATE DASHBOARD ====================
 function updateDashboard() {
-  var producing = appData.workOrders.filter(function(w) { return w.status === 'producing'; }).length;
-  var pendingQc = appData.workOrders.filter(function(w) { return w.status === 'pending_qc'; }).length;
-  var passedQC = appData.qc.filter(function(q) { return q.result === 'pass'; }).map(function(q) { return q.woId; });
-  var ready = appData.workOrders.filter(function(w) { return w.status === 'completed' && passedQC.indexOf(w.id) !== -1 && w.actualQty > 0; }).length;
+  var producing = appData.workOrders.filter(function(w) { return w.status === 'rewinding' || w.status === 'slitting'; }).length;
+  var pendingQc = appData.workOrders.filter(function(w) { return w.status === 'slit_done'; }).length;
+  var passedQC = appData.qc.filter(function(q) { return q.result === 'pass' && q.type === 'OQC'; }).map(function(q) { return q.target; });
+  var ready = appData.workOrders.filter(function(w) { return w.status === 'slit_done' && passedQC.indexOf(w.id) !== -1 && w.actualOutput > 0; }).length;
+  var remnant = appData.jumboRolls.filter(function(j) { return j.status === 'remnant'; }).length;
+
   document.getElementById('dash-producing').textContent = producing;
   document.getElementById('dash-qc').textContent = pendingQc;
   document.getElementById('dash-ready').textContent = ready;
+  document.getElementById('dash-remnant').textContent = remnant;
 }
 
 function renderAll() {
-  renderIQC();
+  renderMachines();
+  renderJumbo();
   renderWO();
   renderQC();
   renderShipping();
@@ -971,3 +1407,4 @@ renderAll();
 </script>
 </body>
 </html>
+
